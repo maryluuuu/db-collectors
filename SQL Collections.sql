@@ -17,7 +17,7 @@ create table collezione(
     flag varchar(12),
     collezionista_ID integer unsigned,
     constraint check_share check (flag in ('pubblico', 'privato')),
-	constraint proprieta_collezione foreign key (collezionista_ID) 
+	constraint proprietà_collezione foreign key (collezionista_ID) 
 		references collezionista(ID),
     constraint nome_unica unique (collezionista_ID, nome)
     );
@@ -30,22 +30,37 @@ create table condivisa(
 		references collezionista(ID) on delete cascade on update cascade, -- da rivedere
 	constraint collezionista_collezione foreign key (ID_collezione)
 		references collezione(ID) on delete restrict on update cascade -- da rivedere
-    );
+    )
     
 drop table if exists disco;
 create table disco(
-	ID_disco integer unsigned auto_increment primary key,
-    titolo varchar(80) not null,
-    quantita smallint unsigned not null,
-    barcode mediumint unsigned
+	id_disco integer unsigned auto_increment primary key,
+    titolo varchar(180) not null
 );
-
+    
 drop table if exists genere;
 create table genere(
- ID_genere integer unsigned auto_increment primary key,
-	nome varchar(80) not null 
- );
- 
+	id_genere integer unsigned auto_increment primary key,
+    nome varchar(80) not null
+);
+
+drop table if exists traccia;
+create table traccia(
+	id_genere integer unsigned auto_increment primary key,
+    titolo varchar(180) not null,
+    durata integer unsigned not null
+); 
+    
     
 
 	
+	
+
+
+
+
+
+
+
+
+    
