@@ -30,18 +30,31 @@ create table condivisa(
 		references collezionista(ID) on delete cascade on update cascade, -- da rivedere
 	constraint collezionista_collezione foreign key (ID_collezione)
 		references collezione(ID) on delete restrict on update cascade -- da rivedere
-    )
+    );
     
 drop table if exists disco;
 create table disco(
 	id_disco integer unsigned auto_increment primary key,
-    titolo varchar(180) not null
+    titolo varchar(180) not null,
+    barcode integer unsigned,
+    anno smallint unsigned not null,
+    genere integer unsigned,
+    constraint controllo_anno check (anno>1900 and anno<2500),
+    constraint genere_disco foreign key (genere)
+		references genere(id_genere) on delete cascade on update cascade -- da rivedere
 );
     
 drop table if exists genere;
 create table genere(
 	id_genere integer unsigned auto_increment primary key,
     nome varchar(80) not null
+);
+
+drop table if exists autore;
+create table autore(
+	id_autore integer unsigned auto_increment primary key,
+	nome varchar(80) not null,
+    ipi integer unsigned 
 );
 
 drop table if exists traccia;
