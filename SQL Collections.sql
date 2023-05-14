@@ -58,8 +58,8 @@ create table disco(
     titolo varchar(180) not null,
     barcode integer unsigned,
     anno smallint unsigned not null,
-    genere_id integer unsigned,
-    autore_id integer unsigned,
+    genere_id integer unsigned, -- specificare se può essere nullo o no
+    autore_id integer unsigned, -- specificare se può essere nullo o no
     constraint controllo_anno check (anno>1900 and anno<2500),
 	foreign key (genere_id)
 		references genere(id_genere) on delete cascade on update cascade, -- da rivedere
@@ -68,7 +68,7 @@ create table disco(
 );
 
 drop table if exists disco_genere;
-create table disco_genere(
+create table disco_genere( -- ci va la primary key?
 	id_disco integer unsigned, 
     id_genere integer unsigned,
     foreign key (id_disco)
@@ -78,7 +78,7 @@ create table disco_genere(
 );
 
 drop table if exists disco_autore;
-create table disco_autore(
+create table disco_autore( -- ci va la primary key?
 	id_disco integer unsigned, 
     id_autore integer unsigned,
     foreign key (id_disco)
@@ -87,6 +87,21 @@ create table disco_autore(
 		references autore(id_autore) on delete cascade on update cascade
 );
 
+drop table if exists disco_traccia;
+CREATE TABLE disco_traccia ( -- ci va la parimary key?
+    disco_id INTEGER UNSIGNED,
+    traccia_id INTEGER UNSIGNED,
+    foreign key (disco_id) references disco(id_disco) on delete cascade on update cascade,
+    foreign key (traccia_id) references traccia(id_traccia) on delete cascade on update cascade
+);
+
+drop table if exists disco_collezione;
+create table disco_collezione( -- ci va la primary key?
+	disco_id integer unsigned ,
+    collezione_id integer unsigned,
+    foreign key (disco_id) references disco(id_disco) on delete cascade on update cascade,
+    foreign key (collezione_id) references collezione(ID) on delete cascade on update cascade
+);
     
     
 
