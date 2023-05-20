@@ -12,6 +12,7 @@ drop table if exists traccia;
 drop table if exists formato;
 drop table if exists condizione;
 drop table if exists codice;
+drop table if exists etichetta;
 drop table if exists disco;
 drop table if exists conservazione;
 drop table if exists diventa;
@@ -21,6 +22,7 @@ drop table if exists composto;
 drop table if exists contiene;
 drop table if exists raccolta;
 drop table if exists dispone;
+drop table if exists produce;
 
 
 create table collezionista(
@@ -50,7 +52,7 @@ create table collezione(
     
     
 create table condivisa(
-	ID_collezionista integer unsigned,
+	ID_collezionista integer unsigned not null,
     ID_collezione integer unsigned not null,
     primary key (ID_collezionista, ID_collezione),
     
@@ -67,7 +69,7 @@ create table condivisa(
 
 
 create table possiede(
-	ID_collezionista integer unsigned,
+	ID_collezionista integer unsigned not null,
     ID_collezione integer unsigned not null,
     primary key(ID_collezionista, ID_collezione),
     
@@ -92,7 +94,7 @@ create table genere(
 create table autore(
 	ID integer unsigned auto_increment primary key,
 	nome varchar(80) not null,
-    IPI integer unsigned unique 
+    IPI integer unsigned unique not null 
 );
 
 
@@ -104,16 +106,20 @@ create table traccia(
     
 
 create table formato(
-	ID integer unsigned primary key,
+	ID integer unsigned auto_increment primary key,
     tipo varchar(130) not null
 );
 
     
 create table condizione(
-	ID integer unsigned primary key,
-	stato varchar(110)
+	ID integer unsigned auto_increment primary key,
+	stato varchar(110) not null
     );
     
+create table etichetta(
+	ID integer unsigned auto_increment primary key,
+    nome varchar(200) not null
+    );
     
 create table codice(
 	ID integer unsigned auto_increment primary key,
@@ -130,28 +136,38 @@ create table disco(
         
     anno_uscita smallint unsigned not null,
     etichetta varchar(200) not null,
+    ID_etichetta integer unsigned not null,
+	ID_codice integer unsigned not null,
     ID_genere integer unsigned not null,
-    ID_codice integer unsigned,
+
     
     constraint controllo_anno check (anno_uscita > 1900 and anno_uscita < 2500),
 		-- controlla se l'anno sta tra il 1900 e l'anno corrente
 			-- # non sono sicuro se questo me lo confronta con l'anno
 			-- # corrente
-        
-	constraint disco_genere foreign key (ID_genere)
-		references genere(ID) on delete restrict on update cascade,
-        -- cancella il genere se non c'è nessun disco che lo appartenga
-        
-	constraint disco_codice foreign key (ID_codice)
-		references codice(ID) on delete restrict on update cascade
+            
+	constraint disco_etichetta foreign key (ID_etichetta)
+		references etichetta(ID) on delete set null on update cascade,
+			-- # set null perchè una volta cancellata l'etichetta
+            -- # il disco ancora esiste nonostante l'assenza
+            -- # dell' etichetta
+			
+    constraint disco_codice foreign key (ID_codice)
+		references codice(ID) on delete restrict on update cascade,
 			-- # non sono molto sicuro
 				-- cancella il codice se non c'è nessun disco che lo appartenga
+                
+	constraint disco_genere foreign key (ID_genere)
+		references genere(ID) on delete restrict on update cascade
+        -- cancella il genere se non c'è nessun disco che lo appartenga
+
 );
 
 
 create table conservazione(
 	ID_disco integer unsigned not null,
     ID_condizione integer unsigned not null,
+    primary key (ID_disco, ID_condizione),
     
     constraint conservazione_disco foreign key (ID_disco)
 		references disco (ID) on delete restrict on update cascade,
@@ -170,6 +186,7 @@ create table conservazione(
 create table diventa(
 	ID_disco integer unsigned not null, 
     ID_formato integer unsigned not null,
+    primary key(ID_disco, ID_formato),
     
 	constraint diventa_disco foreign key (ID_disco)
 		references disco(ID) on delete restrict on update cascade,
@@ -186,6 +203,7 @@ create table diventa(
 create table scritta(
 	ID_traccia  integer unsigned not null,
     ID_autore integer unsigned not null,
+    primary key(ID_traccia, ID_autore),
     
     constraint scritta_traccia foreign key (ID_traccia)
 		references traccia(ID) on delete cascade on update cascade,
@@ -213,6 +231,7 @@ create table immagine(
 create table composto(
 	ID_disco integer unsigned not null, 
     ID_autore integer unsigned not null,
+    primary key (ID_disco, ID_autore),
     
     constraint composto_disco foreign key (ID_disco)
 		references disco(ID) on delete restrict on update cascade,
@@ -228,7 +247,9 @@ create table composto(
 
 CREATE TABLE contiene (
     ID_disco integer unsigned not null,
-    ID_traccia integer unsigned, -- messo relazione ( 0, n )
+    ID_traccia integer unsigned not null,
+    primary key(ID_disco, ID_traccia),
+    
     constraint contiene_disco foreign key (ID_disco) 
 		references disco(ID) on delete cascade on update cascade,
         -- cascade se cancelli il disco cancelli pure le traccie
@@ -242,6 +263,7 @@ CREATE TABLE contiene (
 create table raccolta(
 	ID_disco integer unsigned not null,
     ID_collezione integer unsigned not null,
+    primary key(ID_disco, ID_collezione),
     
     constraint raccolta_disco foreign key (ID_disco)
 		references disco(ID) on delete cascade on update cascade,
@@ -259,13 +281,13 @@ create table dispone(
 	ID_collezionista integer unsigned not null,
     ID_disco integer unsigned not null,
     quantita integer unsigned default 1,
+    primary key(ID_collezionista, ID_disco),
     
     constraint dispone_collezionista foreign key (ID_collezionista)
 		references collezionista(ID) on delete cascade on update cascade
         -- cascade, se cancelli il collezionista cancelli pure i 
         -- suoi doppioni
 );
-
     
     
 
