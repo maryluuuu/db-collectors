@@ -1,0 +1,35 @@
+Per una relazione 1 a 1, un attributo può essere utilizzato in una delle entità coinvolte per stabilire la relazione. Ad esempio, una colonna con una chiave esterna 
+può essere aggiunta a una delle tabelle coinvolte per creare un collegamento tra di loro.
+
+Per una relazione 1 a N, sono necessarie due entità. Una delle entità conterrà un attributo che funge da chiave esterna per stabilire la relazione con l'altra entità. 
+In questo caso, l'entità "disco" ha l'attributo "ID_etichetta" che si riferisce all'entità "etichetta".
+
+Per una relazione N a M (molti a molti), sono necessarie due entità separate e una tabella di collegamento per stabilire la relazione tra di loro. La tabella di 
+collegamento contiene le chiavi esterne delle due entità coinvolte. Questa tabella di collegamento serve a mappare le associazioni tra le entità
+
+ON DELETE CASCADE:
+Quando viene definita una chiave esterna con l'opzione "ON DELETE CASCADE", significa che se una riga nella tabella referenziata viene eliminata, tutte le righe corrispondenti 
+nella tabella che fa riferimento verranno automaticamente eliminate. In altre parole, l'eliminazione di una riga nella tabella referenziata provocherà l'eliminazione automatica 
+delle righe corrispondenti nella tabella che fa riferimento a quella chiave esterna. Questa opzione è utile quando si desidera mantenere l'integrità referenziale e mantenere 
+consistenza tra le tabelle.
+
+ON DELETE RESTRICT:
+Con l'opzione "ON DELETE RESTRICT", viene imposto un vincolo che impedisce l'eliminazione di una riga nella tabella referenziata se ci sono righe corrispondenti nella tabella 
+che fa riferimento a quella chiave esterna. In sostanza, viene impedita l'eliminazione di una riga nella tabella referenziata se esistono dipendenze nella tabella che fa 
+riferimento a quella chiave esterna. Questa opzione è utile quando si desidera impedire l'eliminazione accidentale di dati importanti o mantenere una restrizione 
+sull'eliminazione di righe correlate.
+
+Altri specificatori che possono essere utilizzati nelle clausole di chiave esterna includono:
+
+ON DELETE SET NULL:
+Con questa opzione, se una riga nella tabella referenziata viene eliminata, i valori delle colonne corrispondenti nella tabella che fa riferimento vengono impostati su NULL. 
+Questa opzione può essere utile quando si desidera mantenere le righe correlate ma vuote nella tabella che fa riferimento.
+
+ON DELETE SET DEFAULT:
+Questa opzione imposta i valori delle colonne corrispondenti nella tabella che fa riferimento ai loro valori di default definiti. Questo è utile quando si desidera 
+impostare automaticamente i valori di default nelle righe correlate dopo l'eliminazione di una riga nella tabella referenziata.
+
+ON DELETE NO ACTION:
+Questa opzione è simile a "ON DELETE RESTRICT" e impedisce l'eliminazione di una riga nella tabella referenziata se ci sono righe corrispondenti nella tabella che fa 
+riferimento a quella chiave esterna. Tuttavia, a differenza di "ON DELETE RESTRICT", non viene sollevato un errore immediato se viene violato il vincolo, ma verrà sollevato 
+un errore solo alla fine della transazione se l'operazione di eliminazione non è andata a buon fine.
