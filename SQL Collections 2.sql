@@ -10,10 +10,10 @@ drop table if exists genere;
 drop table if exists autore;
 drop table if exists traccia;
 drop table if exists formato;
-drop table if exists formato;
+drop table if exists condizione;
+drop table if exists codice;
 drop table if exists etichetta;
 drop table if exists disco;
-drop table if exists doppione;
 drop table if exists conservazione;
 drop table if exists diventa;
 drop table if exists immagine;
@@ -41,9 +41,12 @@ create table collezione(
     
     constraint check_share check (flag in ('pubblico', 'privato')),
 		-- flag può essere pubblico o privato
-    foreign key (ID_collezionista) references collezionista(ID) on delete cascade on update cascade,
+    
+	constraint collezione_collezionista foreign key (ID_collezionista) 
+		references collezionista(ID) on delete cascade on update cascade,
 			-- cascade, perchè se cancelli un collezionista cancelli il riferimento
 			-- alla collezione
+        
     constraint nome_unica unique (ID_collezionista, nome)
     );
 
@@ -61,7 +64,7 @@ create table traccia(
     durata integer unsigned not null,
 	ISRC varchar(12) unique not null
 );
-   
+    
 -- Tabella etichetta    
 create table etichetta(
 	ID integer unsigned auto_increment primary key,
@@ -73,8 +76,7 @@ create table formato(
 	ID integer unsigned auto_increment primary key,
     nome varchar(20) not null,
     
-    constraint check_share check (nome in ('digitale', 'cd', 'vinile'))
-    -- la clausola check garantisce che non ci siano duplicati
+    constraint check_formato check (nome in ('digitale', 'cd', 'vinile'))
 );
 
 -- Tabella disco
@@ -83,19 +85,34 @@ create table disco(
     titolo_disco varchar(180) not null,
 	barcode integer unsigned unique, 
     anno_uscita smallint unsigned not null,
-    ID_etichetta integer unsigned not null,
+    ID_etichetta integer unsigned,
     genere varchar(50),
-    -- forse sarebbe meglio mettere genere in una tabella e formato come attributo
-    -- perchè il check sarà lunghissimo
-    constraint controllo_anno check (anno_uscita >= 1900 and anno_uscita <= year(curdate())),
+	-- forse sarebbe meglio mettere genere in una tabella e formato come attributo altrimenti viene un check lunghissimo
+    -- constraint controllo_anno check (anno_uscita >= 1900 and anno_uscita <= year(curdate())),
 		-- controlla se l'anno sta tra il 1900 e l'anno corrente
-	foreign key (ID_etichetta) references etichetta(ID) on delete set null on update cascade,
+        -- va specificato nella query per l'insert
+            
+	foreign key (ID_etichetta) references etichetta(ID) on delete set null on update cascade
 			-- # set null perchè una volta cancellata l'etichetta
             -- # il disco ancora esiste nonostante l'assenza
             -- # dell' etichetta
-		-- forse sarebbe meglio mettere genere in una tabella e formato come attributo
+		
 );
 
+-- Tabella immagini
+create table immagine(
+	ID integer unsigned auto_increment primary key,
+    tipo varchar(20) not null,
+    path varchar(200) not null,
+    ID_disco integer unsigned not null,
+    
+     constraint immagine_disco foreign key (ID_disco)
+		references disco(ID) on delete restrict on update cascade
+        -- restrict, cancella il disco se non sono presenti 
+        -- più immagini
+);
+
+-- Tabella doppione
 create table doppione(
 	ID integer unsigned auto_increment primary key,
     id_disco_originale integer unsigned not null,
@@ -103,11 +120,11 @@ create table doppione(
     quantità integer unsigned not null,
     id_formato integer unsigned,
     
-    foreign key (id_formato) references formato(ID) on delete set null on update cascade,
+    foreign key (id_formato) references formato(ID) on delete set null on update cascade, -- non lo so
     foreign key (id_formato) references disco(ID) on delete cascade on update cascade
 );
 
--- Tabella condivisione collezione e collezionista
+-- Tabella condivisione collezione e collezionista (n..n)
 create table condivisa(
 	ID_collezionista integer unsigned not null,
     ID_collezione integer unsigned not null,
@@ -124,71 +141,18 @@ create table condivisa(
             -- viene cancellata a tutti
     );
 
--- Tabella collezionista_collezione
-create table gestisce(
-	ID_collezionista integer unsigned not null,
-    ID_collezione integer unsigned not null,
-    primary key(ID_collezionista, ID_collezione),
-    
-    constraint possiede_collezionista foreign key (ID_collezionista)
-		references collezionista(ID) on delete cascade on update cascade,
-			-- cascade perchè se viene cancellato un collezionista
-            -- cancelli tutte le collezioni che possiede
-            
-	constraint possiede_collezione foreign key (ID_collezione)
-		references collezione(ID) on delete restrict on update cascade
-			-- restrict cancelli una collezione se non è condivisa da nessuno
-				-- # non sono sicuro se mettere una delete cascade
-    );
-
-
-create table conservazione(
-	ID_disco integer unsigned not null,
-    ID_condizione integer unsigned not null,
-    primary key (ID_disco, ID_condizione),
-    
-    constraint conservazione_disco foreign key (ID_disco)
-		references disco (ID) on delete restrict on update cascade,
-			-- restrict cancello il disco se non è presente in quello
-            -- stato di condizione
-				-- # non sono sicuro
-            
-	constraint conservazione_condizione foreign key (ID_condizione)
-		references condizione (ID) on delete restrict on update cascade
-			-- restrict cancello il disco se non è presente in quello
-            -- stato di condizione
-				-- # non sono sicuro
-);
-
-
-
+-- Tabella relazione autore e disco (n..n)		
 create table scritta(
-	ID_traccia  integer unsigned not null,
+	ID_disco  integer unsigned not null,
     ID_autore integer unsigned not null,
     primary key(ID_traccia, ID_autore),
     
-    constraint scritta_traccia foreign key (ID_traccia)
-		references traccia(ID) on delete cascade on update cascade,
-			-- cascade, perchè se cancelli la traccia cancelli
-            -- anche l'autore legato a quella traccia
+    foreign key (ID_disco) references disco(ID) on delete cascade on update cascade,
+			-- cascade, perchè se cancelli una traccia cancelli tutte le righe nella tabella scritta riferite alla traccia
         
-	constraint scritta_autore foreign key (ID_autore)
-		references autore(ID) on delete cascade on update cascade
-			-- cascade, perchè cancellando l'autore cancelli pure
-            -- le traccie legate ad esso
+	foreign key (ID_autore)	references autore(ID) on delete cascade on update cascade
+			-- cascade, perchè cancellando un autore cancelli tutte le sue righe nella tabella scritta
 );
-
-create table immagine(
-	ID integer unsigned auto_increment primary key,
-    tipo varchar(200) not null,
-    ID_disco integer unsigned not null,
-    
-     constraint immagine_disco foreign key (ID_disco)
-		references disco(ID) on delete restrict on update cascade
-        -- restrict, cancella il disco se non sono presenti 
-        -- più immagini
-);
-    
 
 create table composto(
 	ID_disco integer unsigned not null, 
@@ -207,21 +171,22 @@ create table composto(
 			-- # non sono sicuro
 );
 
-CREATE TABLE contiene (
+-- Tabella relazione disco e tracce (n..n)
+create table contiene (
     ID_disco integer unsigned not null,
     ID_traccia integer unsigned not null,
     primary key(ID_disco, ID_traccia),
     
     constraint contiene_disco foreign key (ID_disco) 
-		references disco(ID) on delete cascade on update cascade,
-        -- cascade se cancelli il disco cancelli pure le traccie
-        -- associate
+		references disco(ID) on delete restrict on update cascade,
+        -- quando le tracce non sono più contenute in nessun disco vengono eliminate
     constraint contiene_traccia foreign key (ID_traccia) 
 		references traccia(ID) on delete cascade on update cascade
         -- cascade se cancelli la traccia cancelli pure i dischi
         -- associati ad essi
 );
 
+-- Tabella relazione tra doppione e collezione (n..n)
 create table raccolta(
 	ID_disco integer unsigned not null,
     ID_collezione integer unsigned not null,
@@ -238,29 +203,7 @@ create table raccolta(
         -- cancellati tutti i dischi
 			-- # non sono sicuro
 );
-
-create table dispone(
-	ID_collezionista integer unsigned not null,
-    ID_disco integer unsigned not null,
-    quantita integer unsigned default 1,
-    primary key(ID_collezionista, ID_disco),
     
-    constraint dispone_collezionista foreign key (ID_collezionista)
-		references collezionista(ID) on delete cascade on update cascade
-        -- cascade, se cancelli il collezionista cancelli pure i 
-        -- suoi doppioni
-);
-    
-    
-
-	
-	
-
-
-
-
-
-
 
 
     
