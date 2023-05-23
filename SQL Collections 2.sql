@@ -10,10 +10,10 @@ drop table if exists genere;
 drop table if exists autore;
 drop table if exists traccia;
 drop table if exists formato;
-drop table if exists condizione;
-drop table if exists codice;
+drop table if exists formato;
 drop table if exists etichetta;
 drop table if exists disco;
+drop table if exists doppione;
 drop table if exists conservazione;
 drop table if exists diventa;
 drop table if exists immagine;
@@ -41,12 +41,9 @@ create table collezione(
     
     constraint check_share check (flag in ('pubblico', 'privato')),
 		-- flag può essere pubblico o privato
-    
-	constraint collezione_collezionista foreign key (ID_collezionista) 
-		references collezionista(ID) on delete cascade on update cascade,
+    foreign key (ID_collezionista) references collezionista(ID) on delete cascade on update cascade,
 			-- cascade, perchè se cancelli un collezionista cancelli il riferimento
 			-- alla collezione
-        
     constraint nome_unica unique (ID_collezionista, nome)
     );
 
@@ -64,19 +61,14 @@ create table traccia(
     durata integer unsigned not null,
 	ISRC varchar(12) unique not null
 );
-
--- Tabella formato
-create table formato(
-	ID integer unsigned auto_increment primary key,
-	nome varchar(110) not null
-    );
-    
+   
 -- Tabella etichetta    
 create table etichetta(
 	ID integer unsigned auto_increment primary key,
     nome varchar(200) unique not null
     );
-    
+
+-- Tabella formato
 create table formato(
 	ID integer unsigned auto_increment primary key,
     nome varchar(20) not null,
@@ -93,17 +85,14 @@ create table disco(
     anno_uscita smallint unsigned not null,
     ID_etichetta integer unsigned not null,
     genere varchar(50),
-
+    -- forse sarebbe meglio mettere genere in una tabella e formato come attributo
+    -- perchè il check sarà lunghissimo
     constraint controllo_anno check (anno_uscita >= 1900 and anno_uscita <= year(curdate())),
 		-- controlla se l'anno sta tra il 1900 e l'anno corrente
-            
 	foreign key (ID_etichetta) references etichetta(ID) on delete set null on update cascade,
 			-- # set null perchè una volta cancellata l'etichetta
             -- # il disco ancora esiste nonostante l'assenza
             -- # dell' etichetta
-                
-	foreign key (ID_genere) references genere(ID) on delete restrict on update cascade
-        -- cancella il genere se non c'è nessun disco che lo appartenga
 		-- forse sarebbe meglio mettere genere in una tabella e formato come attributo
 );
 
@@ -172,22 +161,6 @@ create table conservazione(
 );
 
 
-create table diventa(
-	ID_disco integer unsigned not null, 
-    ID_formato integer unsigned not null,
-    primary key(ID_disco, ID_formato),
-    
-	constraint diventa_disco foreign key (ID_disco)
-		references disco(ID) on delete restrict on update cascade,
-			-- restrict perchè il disco viene cancellato se non è di
-			-- nessun formato
-				-- # non sono sicuro
-                
-	constraint diventa_formato foreign key (ID_formato)
-		references formato(ID) on delete restrict on update cascade
-			-- restrict perchè il formato viene cancellato se non è di
-			-- nessun disco
-);
 
 create table scritta(
 	ID_traccia  integer unsigned not null,
