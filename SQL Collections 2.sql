@@ -121,7 +121,7 @@ create table doppione(
     id_formato integer unsigned,
     
     foreign key (id_formato) references formato(ID) on delete set null on update cascade, -- non lo so
-    foreign key (id_formato) references disco(ID) on delete cascade on update cascade
+    foreign key (id_disco_originale) references disco(ID) on delete cascade on update cascade
 );
 
 -- Tabella condivisione collezione e collezionista (n..n)
