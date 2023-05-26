@@ -87,8 +87,7 @@ create table disco(
     anno_uscita smallint unsigned not null,
     ID_etichetta integer unsigned,
     genere varchar(50),
-	-- forse sarebbe meglio mettere genere in una tabella e formato come attributo altrimenti viene un check lunghissimo
-    -- constraint controllo_anno check (anno_uscita >= 1900 and anno_uscita <= year(curdate())),
+	constraint controllo_anno check (anno_uscita >= 1900 and anno_uscita <= year(curdate())),
 		-- controlla se l'anno sta tra il 1900 e l'anno corrente
         -- va specificato nella query per l'insert
             
@@ -124,7 +123,7 @@ create table doppione(
     foreign key (id_disco_originale) references disco(ID) on delete cascade on update cascade
 );
 
--- Tabella condivisione collezione e collezionista (n..n)
+-- Tabella condivisione collezione e collezionista (n..m)
 create table condivisa(
 	ID_collezionista integer unsigned not null,
     ID_collezione integer unsigned not null,
@@ -141,8 +140,8 @@ create table condivisa(
             -- viene cancellata a tutti
     );
 
--- Tabella relazione autore e disco (n..n)		
-create table scritta(
+-- Tabella relazione autore e disco (n..m)		
+create table compone(
 	ID_disco  integer unsigned not null,
     ID_autore integer unsigned not null,
     primary key(ID_traccia, ID_autore),
@@ -153,26 +152,26 @@ create table scritta(
 	foreign key (ID_autore)	references autore(ID) on delete cascade on update cascade
 			-- cascade, perchè cancellando un autore cancelli tutte le sue righe nella tabella scritta
 );
-
+-- Tabella relazione disco e autore (n..m)
 create table composto(
 	ID_disco integer unsigned not null, 
     ID_autore integer unsigned not null,
     primary key (ID_disco, ID_autore),
     
     constraint composto_disco foreign key (ID_disco)
-		references disco(ID) on delete restrict on update cascade,
+		references disco(ID) on delete cascade on update cascade,
         -- restrict perchè il disco viene cancellato se non è composto
         -- da nessun autore
 			-- # non sono sicuro
     constraint composto_autore foreign key (ID_autore)
-		references autore(ID) on delete cascade on update cascade
+		references autore(ID) on delete restrict on update cascade
         -- cascade perchè cancelli tutti i dischi legati a
         -- quell' autore 
 			-- # non sono sicuro
 );
 
--- Tabella relazione disco e tracce (n..n)
-create table contiene (
+-- Tabella relazione disco e tracce (n..m)
+create table scritta (
     ID_disco integer unsigned not null,
     ID_traccia integer unsigned not null,
     primary key(ID_disco, ID_traccia),
