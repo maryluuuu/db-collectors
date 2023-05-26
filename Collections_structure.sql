@@ -85,7 +85,7 @@ create table etichetta(
     
 );
   
-  
+drop if exist 
 create table disco(
 
 	ID integer unsigned auto_increment primary key,
