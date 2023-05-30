@@ -5,12 +5,11 @@ use progettoLab;
 drop table if exists collezionista; -- X
 drop table if exists collezione; -- X
 drop table if exists genere; -- X
-drop table if exists autore; -- X
-drop table if exists traccia; -- X
 drop table if exists etichetta; -- X
-drop table if exists disco; -- X
+drop table if exists disco; -- X #DUBBIO controllare!!!
+drop table if exists traccia; -- X
+drop table if exists autore; -- X
 drop table if exists doppioni; -- X
-drop table if exists scritta; -- X
 drop table if exists immagine; -- X
 drop table if exists compone; -- X
 
@@ -54,13 +53,46 @@ create table genere(
 );
 
 
-create table autore(
+create table etichetta(
 
 	ID integer unsigned auto_increment primary key,
-	nome varchar(80),
-    cognome varchar(100) default 'Sconosciuto', 
-    IPI integer unsigned unique not null
+    nome varchar(200) not null
     
+);
+
+
+create table disco(
+
+	ID integer unsigned auto_increment primary key,
+    titolo_disco varchar(180) not null,
+    anno_uscita smallint unsigned not null,
+    barcode bigint(13) unsigned unique,
+    durata_totale integer unsigned not null,
+    ID_etichetta integer unsigned,
+    ID_genere integer unsigned not null,
+    ID_collezione integer unsigned not null,
+    
+    constraint controllo_anno check (anno_uscita > 1900 and anno_uscita < 2023),
+		-- controlla se l'anno sta tra il 1900 e l'anno corrente
+			
+	constraint disco_etichetta foreign key (ID_etichetta)
+		references etichetta(ID) on delete set null on update cascade,
+			-- set null perchè una volta cancellata l'etichetta
+            -- il disco ancora esiste nonostante l'assenza
+            -- dell' etichetta
+                
+	constraint disco_genere foreign key (ID_genere)
+		references genere(ID) on delete restrict on update cascade,
+			-- cascade, cancella il genere se non c'è nessun disco
+            -- che lo appartenga
+
+	constraint disco_collezione foreign key (ID_collezione)
+		references collezione(ID) on delete cascade on update cascade,
+			-- cascade, cancellata la collezione cancelli tutti i
+            -- dischi al suo interno
+	
+    constraint disco_unico unique (titolo_disco, anno_uscita, barcode)
+		-- #non sono sicuro
 );
 
 
@@ -77,47 +109,22 @@ create table traccia(
 
 );
 
-    
-create table etichetta(
+
+create table autore(
 
 	ID integer unsigned auto_increment primary key,
-    nome varchar(200) not null
+	nome varchar(80),
+    cognome varchar(100) default 'Sconosciuto', 
+    IPI integer unsigned unique not null,
+    ID_traccia integer unsigned,
+    
+    constraint autore_traccia foreign key (ID_traccia)
+		references traccia(ID) on delete set null on update cascade
+			-- set null, perchè se cancelli la traccia non cancelli
+            -- anche gli autori associati alla traccia
     
 );
   
-drop if exist 
-create table disco(
-
-	ID integer unsigned auto_increment primary key,
-    titolo_disco varchar(180) not null,
-    anno_uscita smallint unsigned not null,
-    barcode integer unsigned unique,
-    durata_totale integer unsigned not null,
-    ID_etichetta integer unsigned not null,
-    ID_genere integer unsigned not null,
-    ID_collezionista integer unsigned not null,
-    
-    constraint controllo_anno check (anno_uscita > 1900 and anno_uscita < year(now())),
-		-- controlla se l'anno sta tra il 1900 e l'anno corrente
-			
-	constraint disco_etichetta foreign key (ID_etichetta)
-		references etichetta(ID) on delete set null on update cascade,
-			-- set null perchè una volta cancellata l'etichetta
-            -- il disco ancora esiste nonostante l'assenza
-            -- dell' etichetta
-                
-	constraint disco_genere foreign key (ID_genere)
-		references genere(ID) on delete restrict on update cascade,
-			-- cascade, cancella il genere se non c'è nessun disco
-            -- che lo appartenga
-
-	constraint disco_collezionista foreign key (ID_collezionista)
-		references collezionista(ID) on delete cascade on update cascade
-			-- cascade, cancellato il collezionista cancelli il 
-            -- disco
-            
-);
-
 
 create table doppione(
 
@@ -144,26 +151,6 @@ create table doppione(
 		references collezionista(ID) on delete cascade on update cascade
 			-- cascade, cancellato il collezionista cancelli anche
 			-- i doppioni
-            
-);
-
-
-create table scritta(
-
-	ID_traccia  integer unsigned not null,
-    ID_autore integer unsigned not null,
-    primary key (ID_traccia, ID_autore),
-    
-    constraint scritta_traccia foreign key (ID_traccia)
-		references traccia(ID) on delete cascade on update cascade,
-			-- cascade, perchè se cancelli la traccia cancelli
-            -- anche l'autore legato a quella traccia
-        
-	constraint scritta_autore foreign key (ID_autore)
-		references autore(ID) on delete set null on update cascade
-			-- set null, perchè cancellando l'autore non cancelli
-            -- le traccie legate ad esso ma semplicemente ometti
-            -- l'autore
             
 );
 
