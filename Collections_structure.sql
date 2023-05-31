@@ -99,11 +99,7 @@ create table autore(
 	ID integer unsigned auto_increment primary key,
 	nome varchar(50),
     cognome varchar(80) default 'Sconosciuto', 
-    IPI integer unsigned unique not null,
-    tipo varchar(20),
-    
-    constraint check_tipo check ( tipo in ('esecutore', 'compositore'))
-    
+    IPI integer unsigned unique not null
 );
   
 
@@ -187,6 +183,7 @@ create table composto(
 create table scritta(
 	ID_traccia integer unsigned not null, 
     ID_autore integer unsigned not null,
+    ruolo varchar(20),
     primary key (ID_traccia, ID_autore),
     
     foreign key (ID_traccia) references traccia(ID) on delete cascade on update cascade,
