@@ -17,11 +17,11 @@ insert into `collezionista` values
 (2,'bob','bob.evans@mail.it'),
 (3,'tyler','tyler.lynch@mail.it');
 
-
+-- Inserimento di una nuova collezione
 insert into `collezione` values
 (1, 'I miei preferiti', 'privato', 2),
 (2, 'Pink Floyd music', 'pubblico', 2),
-(3, 'I miei preferiti', 'pubblico', 3);
+(3, 'I miei preferiti', 'privato', 3);
 
 
 insert into `genere` values
@@ -35,7 +35,7 @@ insert into `etichetta` values
 (2, 'Universal Music Group'),
 (3, 'Warner-Elektra-Atlantic');
 
-
+-- Aggiunta di dischi a una collezione.
 insert into `disco` values
 -- disco 'The Wall' del 1979, barcode 0000000012, durata tot(Mother + Stop + Young Lust),
 -- della Sony Music Entertainment, genere Progressive Rock,
@@ -66,16 +66,16 @@ insert into `disco` values
 -- della collezione 'I miei preferiti' di bob
 (5, 'Abbey Road', 1969, null, (select sum(durata) from `traccia` where ID_disco = 3),2, 2, 3);
 
-
+-- Aggiunta di tracce a un disco.
 insert into `traccia` values
--- traccie del disco The Wall
+-- tracce del disco The Wall
 (1, 'Mother', 334, 1),
 (2, 'Stop', 31, 1),
 (3, 'Young Lust', 331, 1),
--- traccie del disco The Dark Side of the Moon
+-- tracce del disco The Dark Side of the Moon
 (4, 'Eclipse', 121, 4),
 (5, 'Us and Them', 470, 4), 
--- traccie del disco Abbey Road
+-- tracce del disco Abbey Road
 (6, 'Come Together', 260, 3);
 
 
@@ -89,3 +89,25 @@ insert into `doppione` values
 (2, 2, 5, 'vinile', 'pessima', 2, 1),			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
 (3, 3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
 (4, 4, 3, 'vinile', 'brutta', 3, 3);			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
+
+-- Modifica dello stato di pubblicazione di una collezione (da privata a pubblica e viceversa) 
+update collezioni
+set flag = 'pubblica'
+where ID = 1;
+
+update collezioni
+set flag = 'private'
+where ID = 1;
+
+-- Aggiunta di nuove condivisioni a una collezione.
+insert into `condivisa` values 
+(1,1), (1,3);
+
+-- Rimozione di un disco da una collezione.
+-- poichè un disco può essere associato ad una sola collezione non serve specificare l'id della collezione
+delete from disco
+where id_disco = 2;
+
+
+
+
