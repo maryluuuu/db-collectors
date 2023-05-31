@@ -1,17 +1,19 @@
-CREATE TRIGGER controllo_anno
-BEFORE INSERT ON la_tua_tabella
-FOR EACH ROW
-BEGIN
-    IF NEW.anno <> YEAR(CURDATE()) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = "L'anno deve essere compreso tra il 1900 e l'anno corrente";
-    END IF;
-END;
+use progettolab;
 
+DELIMITER //
 CREATE TRIGGER controllo_anno
-BEFORE INSERT ON la_tua_tabella
+BEFORE INSERT ON disco
 FOR EACH ROW
 BEGIN
-    IF NEW.anno <> YEAR(CURDATE()) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'L''anno deve essere corrente.';
+    IF NEW.anno < 1900 OR NEW.anno > year(curdate()) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Anno non valido';
     END IF;
-END;
+END//
+
+DELIMITER ;
+
+
+
+    
+    

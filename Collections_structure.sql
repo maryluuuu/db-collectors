@@ -56,7 +56,7 @@ create table etichetta(
 create table disco(
 	ID integer unsigned auto_increment primary key,
     titolo_disco varchar(100) not null,
-    anno_uscita smallint unsigned not null,
+    anno smallint unsigned not null,
     barcode bigint(13) unsigned unique,
     durata_totale integer unsigned not null,
     ID_etichetta integer unsigned,
