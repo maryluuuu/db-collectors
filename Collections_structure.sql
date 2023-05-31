@@ -19,8 +19,7 @@ create table collezionista(
 	nickname varchar(60) not null,
     email varchar(100) not null,
     
-    constraint collezionista_distinto unique (nickname, email)
-    
+    constraint collezionista_distinto unique (nickname, email)  
 );
 
  
@@ -39,7 +38,6 @@ create table collezione(
             -- il riferimento alla collezione
         
     constraint nome_unica unique (ID_collezionista, nome)
-        
 );
 
 
@@ -84,7 +82,6 @@ create table disco(
 
 
 create table traccia(
-
 	ID integer unsigned auto_increment primary key,
     titolo varchar(100) unique not null,
     durata integer unsigned not null,
@@ -105,12 +102,7 @@ create table autore(
     IPI integer unsigned unique not null,
     tipo varchar(20),
     
-    constraint check_tipo check ( tipo in ('esecutore', 'compositore')),
-
-    constraint autore_traccia foreign key (ID_traccia)
-		references traccia(ID) on delete set null on update cascade
-			-- set null, perchè se cancelli la traccia non cancelli
-            -- anche gli autori associati alla traccia
+    constraint check_tipo check ( tipo in ('esecutore', 'compositore'))
     
 );
   
