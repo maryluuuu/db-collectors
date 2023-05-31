@@ -46,19 +46,16 @@ create table collezione(
 create table genere(
 	ID integer unsigned auto_increment primary key,
     nome varchar(50) not null
-    
 );
 
 
 create table etichetta(
 	ID integer unsigned auto_increment primary key,
     nome varchar(100) not null
-    
 );
 
 
 create table disco(
-
 	ID integer unsigned auto_increment primary key,
     titolo_disco varchar(100) not null,
     anno_uscita smallint unsigned not null,
@@ -92,22 +89,24 @@ create table traccia(
     titolo varchar(100) unique not null,
     durata integer unsigned not null,
     ID_disco integer unsigned not null,
+
     
     constraint traccia_disco foreign key (ID_disco)
-		references disco(ID) on delete cascade on update cascade 
+		references disco(ID) on delete cascade on update cascade
 			-- cascade, cancellato il disco cancelli la traccia
 
 );
 
-
+-- per cancellare un autore non deve essere collegato a nessuna traccia e a nessun disco
 create table autore(
-
 	ID integer unsigned auto_increment primary key,
 	nome varchar(50),
     cognome varchar(80) default 'Sconosciuto', 
     IPI integer unsigned unique not null,
-    ID_traccia integer unsigned,
+    tipo varchar(20),
     
+    constraint check_tipo check ( tipo in ('esecutore', 'compositore')),
+
     constraint autore_traccia foreign key (ID_traccia)
 		references traccia(ID) on delete set null on update cascade
 			-- set null, perchè se cancelli la traccia non cancelli
@@ -190,4 +189,18 @@ create table composto(
         -- se elimino l'autore(tabella riferita) elimino tutte le colonne relative all'autore nella tabella referente(compone)
         -- autore non può essere nullo perchè primary key
 		
+);
+
+-- Tabella relazione traccia e autore (n..m)
+create table scritta(
+	ID_traccia integer unsigned not null, 
+    ID_autore integer unsigned not null,
+    primary key (ID_traccia, ID_autore),
+    
+    foreign key (ID_traccia) references traccia(ID) on delete cascade on update cascade,
+		-- elimino traccia ed elimino tutte le righe nella tabella relative alla traccia
+        -- in questo modo garantisco che non vi siano righe di 'scritta' che fanno riferimento a tracce inesistenti
+
+    foreign key (ID_autore) references autore(ID) on delete restrict on update cascade
+        -- posso eliminare l'autore se non è collegato a nessun disco o nessuna traccia
 );
