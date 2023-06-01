@@ -56,7 +56,7 @@ create table etichetta(
 create table disco(
 	ID integer unsigned auto_increment primary key,
     titolo_disco varchar(100) not null,
-    anno smallint unsigned not null,
+    anno_uscita smallint unsigned not null,
     barcode bigint(13) unsigned unique,
     durata_totale integer unsigned not null,
     ID_etichetta integer unsigned,
@@ -189,7 +189,7 @@ create table scritta(
     foreign key (ID_traccia) references traccia(ID) on delete cascade on update cascade,
 		-- elimino traccia ed elimino tutte le righe nella tabella relative alla traccia
         -- in questo modo garantisco che non vi siano righe di 'scritta' che fanno riferimento a tracce inesistenti
-
-    foreign key (ID_autore) references autore(ID) on delete restrict on update cascade
+    foreign key (ID_autore) references autore(ID) on delete restrict on update cascade,
         -- posso eliminare l'autore se non è collegato a nessun disco o nessuna traccia
+	constraint check_ruolo check (ruolo in ('compositore', 'esecutore'))
 );
