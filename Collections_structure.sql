@@ -110,7 +110,7 @@ create table doppione(
     condizione varchar(20) not null,
     ID_disco integer unsigned not null,
     ID_collezionista integer unsigned not null,
-    
+    unique (ID_disco,ID_collezionista,formato,condizione),
     constraint check_formato check (formato in ('CD', 'vinile', 'digitale', 'LP', 'musicasetta', 'Stereo8')),
 		-- il disco può essere solo di questi formati
     
