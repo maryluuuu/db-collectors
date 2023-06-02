@@ -5,34 +5,35 @@ DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
 
 -- Elimina i trigger esistenti
-DROP TRIGGER IF EXISTS controllo_anno;
-DROP TRIGGER IF EXISTS aggiorna_durata_totale;
+DROP TRIGGER IF EXISTS controllo_anno1;
+DROP TRIGGER IF EXISTS controllo_anno2;
 DROP TRIGGER IF EXISTS inserisci_durata_totale;
+DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 
 DELIMITER $$
 
 -- Procedura verifica anno_uscita di disco
-CREATE PROCEDURE verifica_anno(id_disco integer unsigned)
+CREATE PROCEDURE verifica_anno(anno smallint unsigned)
 BEGIN
-    IF NEW.anno_uscita < 1900 OR NEW.anno_uscita > year(curdate()) THEN
+    IF anno < 1900 OR anno > year(curdate()) THEN
         SIGNAL SQLSTATE '45000' 
         SET MESSAGE_TEXT = 'Anno non valido';
     END IF;
 END$$
 
 -- Procedura calcolo durata_totale disco
-CREATE PROCEDURE calcola_durata_totale(id_disco integer unsigned) 
+CREATE PROCEDURE calcola_durata_totale(id integer unsigned) 
 READS SQL DATA -- registrazione binaria
 BEGIN
 	DECLARE total INTEGER;
     
     SELECT SUM(durata) INTO total
     FROM traccia
-    WHERE ID_disco = id_disco;
+    WHERE ID_disco = id;
     
     UPDATE disco
     SET durata_totale = total
-    WHERE ID_disco = id_disco;
+    WHERE ID = id;
 END$$
 
 /*
@@ -48,30 +49,35 @@ BEGIN
     SET quantita = quantita_totale;
 END$$
 */
-    
+
 -- Trigger inserimento di tracce
 CREATE TRIGGER inserisci_durata_totale
 AFTER INSERT ON traccia
-FOR EACH ROW
-CALL calcola_durata_totale();
+FOR EACH ROW BEGIN
+CALL calcola_durata_totale(NEW.ID_disco);
+END$$
 
 -- Trigger inserimento di tracce
 CREATE TRIGGER aggiorna_durata_totale
 AFTER UPDATE ON traccia
-FOR EACH ROW
-CALL calcola_durata_totale();
+FOR EACH ROW BEGIN
+CALL calcola_durata_totale(NEW.ID_disco);
+END$$
 
 -- Trigger per il controllo dell'anno
-CREATE TRIGGER controllo_anno
+CREATE TRIGGER controllo_anno1
 BEFORE INSERT ON disco
-FOR EACH ROW
-CALL verifica_anno();
-
-DELIMITER $$
-CREATE TRIGGER controllo_anno
+FOR EACH ROW BEGIN
+CALL verifica_anno(NEW.anno_uscita);
+END$$
+/*
+CREATE TRIGGER controllo_anno2
 BEFORE UPDATE ON disco
-FOR EACH ROW
-CALL verifica_anno();
+FOR EACH ROW BEGIN
+IF NEW.anno_uscita != OLD.anno_uscita THEN
+CALL verifica_anno(NEW.anno_uscita);
+END IF;
+END$$
 
 
 

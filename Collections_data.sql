@@ -36,7 +36,7 @@ insert into `etichetta` values
 (3, 'Warner-Elektra-Atlantic');
 
 -- Aggiunta di dischi a una collezione.
-insert into `disco` values
+insert into `disco`(ID, titolo_disco, anno_uscita, barcode, durata_totale, ID_etichetta, ID_genere, ID_collezione) values
 -- disco 'The Wall' del 1979, barcode 0000000012, durata tot(Mother + Stop + Young Lust),
 -- della Sony Music Entertainment, genere Progressive Rock,
 -- della collezione 'Pink Floyd Music' di bob
@@ -63,10 +63,10 @@ insert into `disco` values
 (4,'The Wall',1979,0000000013,null, 1, 1, 1),
 
 
--- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
+-- disco 'Abbey Road' del 1969, non esiste barctracciaode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
 -- della collezione 'I miei preferiti' di bob
-(5, 'Abbey Road', 1969, null,2, 2, 3);
+(5, 'Abbey Road', 1969, null, null,2, 2, 3);
 
 -- Aggiunta di tracce a un disco.
 insert into `traccia` values
@@ -87,13 +87,13 @@ insert into `autore` (ID, nome, IPI) values
 
 
 insert into `doppione` values
-(1, 1, 2, 'CD', 'buona', 1, 1), 				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
-(2, 2, 5, 'vinile', 'pessima', 2, 1),			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
-(3, 3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
-(4, 4, 3, 'vinile', 'brutta', 3, 3)			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
+(1, 2, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
+(2, 5, 'vinile', 'pessima', 2, 1), 			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
+(3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
+(4, 3, 'vinile', 'brutta', 3, 3) 			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
 ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di aggiornamento quantità nel caso di disco già esistente
 
--- Modifica dello stato di pubblicazione di una collezione (da privata a pubblica e viceversa) 
+-- Modifica dello stato di pdoppioneubblicazione di una collezione (da privata a pubblica e viceversa) 
 update collezioni
 set flag = 'pubblica'
 where ID = 1;
