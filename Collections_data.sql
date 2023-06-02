@@ -18,7 +18,7 @@ insert into `collezionista` values
 (3,'tyler','tyler.lynch@mail.it');
 
 -- Inserimento di una nuova collezione
-insert into `collezione` values
+insert into `collezione`(ID, nome, flag, ID_collezionista) values
 (1, 'I miei preferiti', 'privato', 2),
 (2, 'Pink Floyd music', 'pubblico', 2),
 (3, 'I miei preferiti', 'privato', 3);
@@ -40,31 +40,33 @@ insert into `disco` values
 -- disco 'The Wall' del 1979, barcode 0000000012, durata tot(Mother + Stop + Young Lust),
 -- della Sony Music Entertainment, genere Progressive Rock,
 -- della collezione 'Pink Floyd Music' di bob
-(1,'The Wall',1979,0000000012, (select sum(durata) from `traccia` where ID_disco = 1), 1, 1, 2),
+(1,'The Wall',1979,0000000012,null,1, 1, 2),
 
 
 -- disco 'The Dark Side of the Moon' del 1973, non esiste barcode, durata tot(Eclipse + Us and Them),
 -- della Warner-Elektra-Atlantic, genere Progressive Pop,
 -- della collezione 'Pink Floyd Music' di bob
-(2, 'The Dark Side of the Moon', 1973, null, (select sum(durata) from `traccia` where ID_disco = 2), 1, 3, 2),
+(2, 'The Dark Side of the Moon', 1973, null, null, 1, 3, 2),
 
 
 -- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
 -- della collezione 'I miei preferiti' di alice
-(3, 'Abbey Road', 1969, null, (select sum(durata) from `traccia` where ID_disco = 3),2, 2, 1),
+(3, 'Abbey Road', 1969, null, null, 2, 2, 1),
+-- select sum(durata) from traccia where id_disco=3 ho tolto questa riga di codice perchè l'entità disco viene creata prima di traccia
+-- quando viene creato il disco non ci sono tracce associate quindi la durata di default è null.
+-- Durante l'inserimento delle tracce interviene il trigger
 
-
--- disco 'The Wall' del 1979, barcode 0000000012, durata tot(Mother + Stop + Young Lust),
+-- disco 'The Wall' del 1979, barcode 0000000013, durata tot(Mother + Stop + Young Lust),
 -- della Sony Music Entertainment, genere Progressive Rock,
 -- della collezione 'I miei preferiti' di alice
-(4,'The Wall',1979,0000000012, (select sum(durata) from `traccia` where ID_disco = 1), 1, 1, 1),
+(4,'The Wall',1979,0000000013,null, 1, 1, 1),
 
 
 -- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
 -- della collezione 'I miei preferiti' di bob
-(5, 'Abbey Road', 1969, null, (select sum(durata) from `traccia` where ID_disco = 3),2, 2, 3);
+(5, 'Abbey Road', 1969, null,2, 2, 3);
 
 -- Aggiunta di tracce a un disco.
 insert into `traccia` values
@@ -88,7 +90,8 @@ insert into `doppione` values
 (1, 1, 2, 'CD', 'buona', 1, 1), 				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
 (2, 2, 5, 'vinile', 'pessima', 2, 1),			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
 (3, 3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
-(4, 4, 3, 'vinile', 'brutta', 3, 3);			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
+(4, 4, 3, 'vinile', 'brutta', 3, 3)			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
+ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di aggiornamento quantità nel caso di disco già esistente
 
 -- Modifica dello stato di pubblicazione di una collezione (da privata a pubblica e viceversa) 
 update collezioni
@@ -106,8 +109,12 @@ insert into `condivisa` values
 -- Rimozione di un disco da una collezione.
 -- poichè un disco può essere associato ad una sola collezione non serve specificare l'id della collezione
 delete from disco
-where id_disco = 2;
+where ID = 2;
 
+-- Rimozione di una collezione
+delete from collezione
+where ID=1;
 
-
+-- Lista di tutti i dischi in una collezione
+select * from collezione where ID=2
 

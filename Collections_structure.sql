@@ -58,7 +58,7 @@ create table disco(
     titolo_disco varchar(100) not null,
     anno_uscita smallint unsigned not null,
     barcode bigint(13) unsigned unique,
-    durata_totale integer unsigned not null,
+    durata_totale integer unsigned default null,
     ID_etichetta integer unsigned,
     ID_genere integer unsigned not null,
     ID_collezione integer unsigned not null,
