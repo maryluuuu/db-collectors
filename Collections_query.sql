@@ -1,7 +1,7 @@
 use progettolab;
 
--- Elimina le funzioni esistenti
-DROP FUNCTION IF EXISTS calcola_durata_totale;
+-- Elimina le procedure esistenti
+DROP PROCEDURE IF EXISTS calcola_durata_totale;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno;
@@ -21,24 +21,25 @@ BEGIN
 END$$
 
 -- Funzione calcolo durata album
-drop function if exists calcola_durata_totale;
-CREATE FUNCTION calcola_durata_totale() RETURNS integer
-READS SQL DATA -- registrazione binaria: la funziona
+CREATE PROCEDURE calcola_durata_totale(id_disco integer) 
+READS SQL DATA -- registrazione binaria
 BEGIN
-  UPDATE disco
-  SET durata_totale = (
-    SELECT SUM(durata)
-    FROM tracce
-    WHERE id_disco = NEW.id_disco
-  )
-  WHERE id_disco = NEW.id_disco;
-  RETURN NEW;
-END;
+	DECLARE total INTEGER;
+    
+    SELECT SUM(durata) INTO total
+    FROM traccia
+    WHERE ID_disco = id_disco;
+    
+    UPDATE disco
+    SET durata_totale = total
+    WHERE ID_disco = id_disco;
+END$$
+    
 
 CREATE TRIGGER aggiorna_durata_totale
-AFTER INSERT ON tracce
+AFTER INSERT ON traccia
 FOR EACH ROW
-EXECUTE FUNCTION calcola_durata_totale();
+CALL calcola_durata_totale();
 
 
 
