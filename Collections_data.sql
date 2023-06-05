@@ -1,15 +1,16 @@
 -- selezioniamo il database di default
 use progettolab;
 
+
 -- svuotiamo le tabelle
-delete from collezionista;
-delete from collezione;
-delete from genere;
-delete from etichetta;
-delete from disco; #non funziona durata totale
-delete from traccia;
-delete from autore;
-delete from doppione;
+delete from `collezionista`;
+delete from `collezione`;
+delete from `genere`;
+delete from `etichetta`;
+delete from `disco`; #non funziona durata totale
+delete from `traccia`;
+delete from `autore`;
+delete from `doppione`;
 
 
 insert into `collezionista` values
@@ -94,12 +95,12 @@ insert into `doppione` values
 ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di aggiornamento quantità nel caso di disco già esistente
 
 -- Modifica dello stato di pdoppioneubblicazione di una collezione (da privata a pubblica e viceversa) 
-update collezioni
-set flag = 'pubblica'
+update `collezione`
+set flag = 'pubblico'
 where ID = 1;
 
-update collezioni
-set flag = 'private'
+update `collezione`
+set flag = 'privato'
 where ID = 1;
 
 -- Aggiunta di nuove condivisioni a una collezione.
@@ -107,14 +108,16 @@ insert into `condivisa` values
 (1,1), (1,3);
 
 -- Rimozione di un disco da una collezione.
--- poichè un disco può essere associato ad una sola collezione non serve specificare l'id della collezione
-delete from disco
-where ID = 2;
+-- (poichè un disco può essere associato ad una sola collezione non serve specificare l'id della collezione)
+	-- # delete from `disco`
+	-- # where ID = 2;
+-- # cancellazione del disco effettuata tramite il trigger ma non ne sono sicuro
 
--- Rimozione di una collezione
-delete from collezione
-where ID=1;
+-- # Rimozione di una collezione (eliminato per il trigger) ma non ne sono sicuro
+	-- # delete from `collezione`
+	-- # where ID = 1;
 
 -- Lista di tutti i dischi in una collezione
-select * from collezione where ID=2
+select * from `collezione`
+where ID = 2;
 
