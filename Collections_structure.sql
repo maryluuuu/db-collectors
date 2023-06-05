@@ -2,19 +2,19 @@ drop database if exists progettoLab;
 create database progettoLab;
 use progettoLab;
 
-drop table if exists collezionista; -- X
-drop table if exists collezione; -- X
-drop table if exists genere; -- X
-drop table if exists etichetta; -- X
-drop table if exists disco; -- X #DUBBIO controllare!!!
-drop table if exists traccia; -- X
-drop table if exists autore; -- X
-drop table if exists doppioni; -- X
-drop table if exists immagine; -- X
-drop table if exists compone; -- X
+drop table if exists `collezionista`; -- X
+drop table if exists `collezione`; -- X
+drop table if exists `genere`; -- X
+drop table if exists `etichetta`; -- X
+drop table if exists `disco`; -- X #DUBBIO controllare!!!
+drop table if exists `traccia`; -- X
+drop table if exists `autore`; -- X
+drop table if exists `doppioni`; -- X
+drop table if exists `immagine`; -- X
+drop table if exists `compone`; -- X
 
 
-create table collezionista(
+create table `collezionista`(
 	ID integer unsigned auto_increment primary key,
 	nickname varchar(60) not null,
     email varchar(100) not null,
@@ -23,7 +23,7 @@ create table collezionista(
 );
 
  
-create table collezione(
+create table `collezione`(
 	ID integer unsigned auto_increment primary key,
     nome varchar(80) not null,
     flag varchar(12) not null,
@@ -41,19 +41,19 @@ create table collezione(
 );
 
 
-create table genere(
+create table `genere`(
 	ID integer unsigned auto_increment primary key,
     nome varchar(50) not null
 );
 
 
-create table etichetta(
+create table `etichetta`(
 	ID integer unsigned auto_increment primary key,
     nome varchar(100) not null
 );
 
 
-create table disco(
+create table `disco`(
 	ID integer unsigned auto_increment primary key,
     titolo_disco varchar(100) not null,
     anno_uscita smallint unsigned not null,
@@ -81,7 +81,7 @@ create table disco(
 );
 
 
-create table traccia(
+create table `traccia`(
 	ID integer unsigned auto_increment primary key,
     titolo varchar(100) unique not null,
     durata integer unsigned not null,
@@ -95,7 +95,7 @@ create table traccia(
 );
 
 -- per cancellare un autore non deve essere collegato a nessuna traccia e a nessun disco
-create table autore(
+create table `autore`(
 	ID integer unsigned auto_increment primary key,
 	nome varchar(50),
     cognome varchar(80) default 'Sconosciuto', 
@@ -103,7 +103,7 @@ create table autore(
 );
   
 
-create table doppione(
+create table `doppione`(
 	ID integer unsigned auto_increment primary key,
     quantita integer unsigned default 1,
     formato varchar(20) not null,
@@ -111,7 +111,7 @@ create table doppione(
     ID_disco integer unsigned not null,
     ID_collezionista integer unsigned not null,
     unique (ID_disco,ID_collezionista,formato,condizione),
-    constraint check_formato check (formato in ('CD', 'vinile', 'digitale', 'LP', 'musicasetta', 'Stereo8')),
+    constraint check_formato check (formato in ('CD', 'vinile', 'digitale', 'LP', 'musicassetta', 'Stereo8')),
 		-- il disco può essere solo di questi formati
     
     constraint check_condizione check (condizione in ('perfetta', 'eccellente',
@@ -130,7 +130,7 @@ create table doppione(
 );
 
 
-create table immagine(
+create table `immagine`(
 	ID integer unsigned auto_increment primary key,
     percorso varchar(500) unique not null,
 		-- percorso dove si trova il file dell'immagine
@@ -144,8 +144,9 @@ create table immagine(
         
 );
 
+
 -- Tabella condivisione collezione e collezionista (n..m)
-create table condivisa(
+create table `condivisa`(
 	ID_collezionista integer unsigned not null,
     ID_collezione integer unsigned not null,
     primary key (ID_collezionista, ID_collezione),
@@ -161,8 +162,9 @@ create table condivisa(
             -- viene cancellata a tutti
     );
 
+
 -- Tabella relazione disco e autore (n..m)
-create table composto(
+create table `composto`(
 	ID_disco integer unsigned not null, 
     ID_autore integer unsigned not null,
     primary key (ID_disco, ID_autore),
@@ -179,17 +181,22 @@ create table composto(
 		
 );
 
+
 -- Tabella relazione traccia e autore (n..m)
-create table scritta(
+create table `scritta`(
 	ID_traccia integer unsigned not null, 
     ID_autore integer unsigned not null,
     ruolo varchar(20),
     primary key (ID_traccia, ID_autore),
     
-    foreign key (ID_traccia) references traccia(ID) on delete cascade on update cascade,
+    constraint scritta_traccia foreign key (ID_traccia)
+    references traccia(ID) on delete cascade on update cascade,
 		-- elimino traccia ed elimino tutte le righe nella tabella relative alla traccia
         -- in questo modo garantisco che non vi siano righe di 'scritta' che fanno riferimento a tracce inesistenti
-    foreign key (ID_autore) references autore(ID) on delete restrict on update cascade,
+        
+    constraint scritta_autore foreign key (ID_autore)
+    references autore(ID) on delete restrict on update cascade,
         -- posso eliminare l'autore se non è collegato a nessun disco o nessuna traccia
+        
 	constraint check_ruolo check (ruolo in ('compositore', 'esecutore'))
 );
