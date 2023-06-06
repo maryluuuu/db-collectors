@@ -29,7 +29,7 @@ create table collezione(
     flag varchar(12) not null,
     ID_collezionista integer unsigned not null,
     
-    constraint check_share check (flag in ('pubblico', 'privato')),
+    constraint check_share check (flag in ('pubblica', 'privata')),
 		-- flag può essere pubblico o privato
     
 	constraint collezione_collezionista foreign key (ID_collezionista) 
@@ -111,7 +111,7 @@ create table doppione(
     ID_disco integer unsigned not null,
     ID_collezionista integer unsigned not null,
     unique (ID_disco,ID_collezionista,formato,condizione),
-    constraint check_formato check (formato in ('CD', 'vinile', 'digitale', 'LP', 'musicasetta', 'Stereo8')),
+    constraint check_formato check (formato in ('CD', 'vinile', 'digitale', 'LP', 'musicassetta', 'Stereo8')),
 		-- il disco può essere solo di questi formati
     
     constraint check_condizione check (condizione in ('perfetta', 'eccellente',
