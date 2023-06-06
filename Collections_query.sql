@@ -40,11 +40,6 @@ BEGIN
     WHERE ID = id;
 END$$
 
-<<<<<<< HEAD
--- Eliminazione dischi
-CREATE PROCEDURE elimina_disco(disco_id integer unsigned)
-=======
--- Procedura di cancellazione di un disco di un collezionista
 
 CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezionista integer unsigned)
 READS SQL DATA -- registrazione binaria

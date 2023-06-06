@@ -2,14 +2,14 @@
 use progettolab;
 
 -- svuotiamo le tabelle
-delete from collezionista;
-delete from collezione;
-delete from genere;
-delete from etichetta;
-delete from disco; #non funziona durata totale
-delete from traccia;
-delete from autore;
-delete from doppione;
+delete from `collezionista`;
+delete from `collezione`;
+delete from `genere`;
+delete from `etichetta`;
+delete from `disco`; #non funziona durata totale
+delete from `traccia`;
+delete from `autore`;
+delete from `doppione`;
 
 
 insert into `collezionista` values
@@ -106,8 +106,9 @@ where ID = 1;
 insert into `condivisa` values 
 (1,1), (1,3);
 
+-- Cancellazione collezione
+delete from collezione where id=1;
 
-
+delete from genere where ID = 1; 
 -- Lista di tutti i dischi in una collezione
-select * from collezione where ID=2
-
+select * from collezione

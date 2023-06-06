@@ -9,7 +9,7 @@ drop table if exists etichetta; -- X
 drop table if exists disco; -- X #DUBBIO controllare!!!
 drop table if exists traccia; -- X
 drop table if exists autore; -- X
-drop table if exists doppioni; -- X
+drop table if exists doppione; -- X
 drop table if exists immagine; -- X
 drop table if exists compone; -- X
 
@@ -58,10 +58,10 @@ create table disco(
     titolo_disco varchar(100) not null,
     anno_uscita smallint unsigned not null,
     barcode bigint(13) unsigned unique,
-    durata_totale integer unsigned default null, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
+    durata_totale integer unsigned default 0, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
     ID_etichetta integer unsigned,
-    ID_genere integer unsigned not null,
-    ID_collezione integer unsigned not null,
+    ID_genere integer unsigned,
+    ID_collezione integer unsigned,
 			
 	constraint disco_etichetta foreign key (ID_etichetta)
 		references etichetta(ID) on delete set null on update cascade,
@@ -70,12 +70,12 @@ create table disco(
             -- dell' etichetta
                 
 	constraint disco_genere foreign key (ID_genere)
-		references genere(ID) on delete restrict on update cascade,
+		references genere(ID) on delete set null on update cascade,
 			-- cascade, cancella il genere se non c'è nessun disco
             -- che lo appartenga
 
 	constraint disco_collezione foreign key (ID_collezione)
-		references collezione(ID) on delete cascade on update cascade
+		references collezione(ID) on delete set null on update cascade
 			-- cascade, cancellata la collezione cancelli tutti i
             -- dischi al suo interno
 );
