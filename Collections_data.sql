@@ -19,9 +19,9 @@ insert into `collezionista` values
 
 -- Inserimento di una nuova collezione
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
-(1, 'I miei preferiti', 'privato', 2),
-(2, 'Pink Floyd music', 'pubblico', 2),
-(3, 'I miei preferiti', 'privato', 3);
+(1, 'I miei preferiti', 'privata', 2),
+(2, 'Pink Floyd music', 'pubblica', 2),
+(3, 'I miei preferiti', 'privata', 3);
 
 
 insert into `genere` values
@@ -94,26 +94,19 @@ insert into `doppione` values
 ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di aggiornamento quantità nel caso di disco già esistente
 
 -- Modifica dello stato di pdoppioneubblicazione di una collezione (da privata a pubblica e viceversa) 
-update collezioni
+update collezione
 set flag = 'pubblica'
 where ID = 1;
 
-update collezioni
-set flag = 'private'
+update collezione
+set flag = 'privata'
 where ID = 1;
 
 -- Aggiunta di nuove condivisioni a una collezione.
 insert into `condivisa` values 
 (1,1), (1,3);
 
--- Rimozione di un disco da una collezione.
--- poichè un disco può essere associato ad una sola collezione non serve specificare l'id della collezione
-delete from disco
-where ID = 2;
 
--- Rimozione di una collezione
-delete from collezione
-where ID=1;
 
 -- Lista di tutti i dischi in una collezione
 select * from collezione where ID=2

@@ -36,19 +36,36 @@ BEGIN
     WHERE ID = id;
 END$$
 
-/*
--- Procedura per il calcolo della quantità di un doppione
--- si può togliere perchè ho vincolato l'inserimento però non lo so non sono sicura
-CREATE PROCEDURE calcola_quantita_totale(disco_id INT, condizione VARCHAR(20), formato varchar(20))
+-- Eliminazione dischi
+CREATE PROCEDURE elimina_disco(disco_id integer unsigned)
 BEGIN
-    DECLARE quantita_totale INT;
-    
-    SELECT SUM(quantita) INTO quantita_totale
+    DECLARE doppioni_count INT;
+
+    -- Controlla se ci sono doppioni collegati al disco
+    SELECT COUNT(*) INTO doppioni_count
     FROM doppione
-    WHERE disco_id = disco_id AND condizione = condizione AND formato=formato;
-    SET quantita = quantita_totale;
-END$$
-*/
+    WHERE ID_disco = disco_id;
+
+    -- Se ci sono doppioni, elimina prima i doppioni e poi il disco
+    IF doppioni_count > 0 THEN
+        -- Elimina i doppioni collegati al disco
+        DELETE FROM doppione
+        WHERE ID_disco = disco_id;
+
+        -- Elimina il disco
+        DELETE FROM disco
+        WHERE ID = disco_id;
+        
+        SELECT CONCAT('Disco con ID ', disco_id, ' eliminato insieme ai suoi doppioni.') AS Message;
+    ELSE
+        -- Se non ci sono doppioni, elimina solo il disco
+        DELETE FROM disco
+        WHERE ID = disco_id;
+        
+        SELECT CONCAT('Disco con ID ', disco_id, ' eliminato.') AS Message;
+    END IF;
+END $$
+
 
 -- Trigger inserimento di tracce
 CREATE TRIGGER inserisci_durata_totale
@@ -57,6 +74,7 @@ FOR EACH ROW BEGIN
 CALL calcola_durata_totale(NEW.ID_disco);
 END$$
 
+
 -- Trigger inserimento di tracce
 CREATE TRIGGER aggiorna_durata_totale
 AFTER UPDATE ON traccia
@@ -64,13 +82,14 @@ FOR EACH ROW BEGIN
 CALL calcola_durata_totale(NEW.ID_disco);
 END$$
 
+
 -- Trigger per il controllo dell'anno
 CREATE TRIGGER controllo_anno1
 BEFORE INSERT ON disco
 FOR EACH ROW BEGIN
 CALL verifica_anno(NEW.anno_uscita);
 END$$
-/*
+
 CREATE TRIGGER controllo_anno2
 BEFORE UPDATE ON disco
 FOR EACH ROW BEGIN
