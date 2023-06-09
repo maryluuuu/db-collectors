@@ -5,6 +5,7 @@ DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
 DROP PROCEDURE IF EXISTS cancellazione_collezione;
+DROP PROCEDURE IF EXISTS elimina_disco;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -51,7 +52,7 @@ BEGIN
     
 END$$
 
-
+/*	#commentato perchè è da rivedere, ps: la run funziona anche senza questa procedura
 -- Procedura di cancellazione di un disco di un collezionista
 	-- #non sono sicuro della creazione della procedura
 CREATE PROCEDURE cancellazione_collezione(id_collezione integer unsigned, id_collezionista integer unsigned)
@@ -63,27 +64,29 @@ BEGIN
     WHERE ID = id_collezione and ID_collezionista = id_collezionista ;
     
 END$$
+*/
 
+/* #commentato perchè è da rivedere, ps: la run funziona anche senza questo trigger
 -- Trigger di cancellazione di una collezione di un collezionista
 	-- #non sono sicuro sulla creazione del trigger
-CREATE trigger eliminazione_collezione
+CREATE TRIGGER eliminazione_collezione
 BEFORE DELETE ON collezione
 FOR EACH ROW BEGIN
 CALL cancellazione_collezione(OLD.ID, OLD.ID_collezionista);
 END$$
+*/
 
 -- Trigger di cancellazione di un disco
-CREATE trigger eliminazione_disco
+CREATE TRIGGER eliminazione_disco
 BEFORE DELETE ON doppione
 FOR EACH ROW BEGIN
 CALL eliminazione_da_collezione(OLD.ID_disco, OLD.ID_collezionista);
 END$$
 
-/*
--- Procedura per il calcolo della quantità di un doppione
--- si può togliere perchè ho vincolato l'inserimento però non lo so non sono sicura
-CREATE PROCEDURE calcola_quantita_totale(disco_id INT, condizione VARCHAR(20), formato varchar(20))
->>>>>>> 48672271f6b3749ebb0853e1977d64405ff4836d
+
+
+-- Eliminazione  dischi
+CREATE PROCEDURE elimina_disco(disco_id integer unsigned) 
 BEGIN
     DECLARE doppioni_count INT;
 
@@ -120,34 +123,24 @@ FOR EACH ROW BEGIN
 CALL calcola_durata_totale(NEW.ID_disco);
 END$$
 
-<<<<<<< HEAD
 
 -- Trigger inserimento di tracce
-=======
--- Trigger aggiornamento di tracce
->>>>>>> 48672271f6b3749ebb0853e1977d64405ff4836d
 CREATE TRIGGER aggiorna_durata_totale
 AFTER UPDATE ON traccia
 FOR EACH ROW BEGIN
 CALL calcola_durata_totale(NEW.ID_disco);
 END$$
 
-<<<<<<< HEAD
 
 -- Trigger per il controllo dell'anno
-=======
--- Trigger per il controllo dell'anno quando viene inserito
->>>>>>> 48672271f6b3749ebb0853e1977d64405ff4836d
 CREATE TRIGGER controllo_anno1
 BEFORE INSERT ON disco
 FOR EACH ROW BEGIN
 CALL verifica_anno(NEW.anno_uscita);
 END$$
 
-<<<<<<< HEAD
-=======
--- Trigger per il controllo dell'anno quando viene aggiornato
->>>>>>> 48672271f6b3749ebb0853e1977d64405ff4836d
+
+-- Trigger aggiornamento anno disco
 CREATE TRIGGER controllo_anno2
 BEFORE UPDATE ON disco
 FOR EACH ROW BEGIN
