@@ -87,6 +87,7 @@ insert into `autore` (ID, nome, IPI) values
 
 
 insert into `doppione` values
+(1, 4, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
 (1, 2, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
 (2, 5, 'vinile', 'pessima', 2, 1), 			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
 (3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
@@ -107,8 +108,15 @@ insert into `condivisa` values
 (1,1), (1,3);
 
 -- Cancellazione collezione
-delete from collezione where id=1;
+delete from collezione where ID = 1;
 
+-- Cancellazione genere
 delete from genere where ID = 1; 
--- Lista di tutti i dischi in una collezione
-select * from collezione
+
+-- Tutte le collezioni di tutti gli utenti
+select * from collezione;
+
+-- Lista di doppioni di tutti i collezionisti
+select * from doppione;
+
+select * from disco;
