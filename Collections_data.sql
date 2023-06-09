@@ -116,6 +116,11 @@ delete from genere where ID = 1;
 -- Tutte le collezioni di tutti gli utenti
 select * from collezione;
 
+
+-- # delete from doppione where ID = 1;
+-- # non riesco a cancellare su un ID
+
+
 -- Lista di doppioni di tutti i collezionisti
 select * from doppione;
 

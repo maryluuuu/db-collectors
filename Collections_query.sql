@@ -76,14 +76,6 @@ CALL cancellazione_collezione(OLD.ID, OLD.ID_collezionista);
 END$$
 */
 
--- Trigger di cancellazione di un disco
-CREATE TRIGGER eliminazione_disco
-BEFORE DELETE ON doppione
-FOR EACH ROW BEGIN
-CALL eliminazione_da_collezione(OLD.ID_disco, OLD.ID_collezionista);
-END$$
-
-
 
 -- Eliminazione  dischi
 CREATE PROCEDURE elimina_disco(disco_id integer unsigned) 
@@ -96,16 +88,12 @@ BEGIN
     WHERE ID_disco = disco_id;
 
     -- Se ci sono doppioni, elimina prima i doppioni e poi il disco
-    IF doppioni_count > 0 THEN
-        -- Elimina i doppioni collegati al disco
-        DELETE FROM doppione
-        WHERE ID_disco = disco_id;
-
-        -- Elimina il disco
-        DELETE FROM disco
-        WHERE ID = disco_id;
+    IF doppioni_count > 1 THEN
+        -- Diminuisci di una quantità i doppioni di ID_disco
+        UPDATE doppione
+        SET quantita = quantita - 1 WHERE ID_disco = disco_id;
         
-        SELECT CONCAT('Disco con ID ', disco_id, ' eliminato insieme ai suoi doppioni.') AS Message;
+        SELECT CONCAT('La quantita disponibile del disco ', disco_id, ' è ', quantita , '.') AS Message;
     ELSE
         -- Se non ci sono doppioni, elimina solo il disco
         DELETE FROM disco
@@ -116,21 +104,7 @@ BEGIN
 END $$
 
 
--- Trigger inserimento di tracce
-CREATE TRIGGER inserisci_durata_totale
-AFTER INSERT ON traccia
-FOR EACH ROW BEGIN
-CALL calcola_durata_totale(NEW.ID_disco);
-END$$
-
-
--- Trigger inserimento di tracce
-CREATE TRIGGER aggiorna_durata_totale
-AFTER UPDATE ON traccia
-FOR EACH ROW BEGIN
-CALL calcola_durata_totale(NEW.ID_disco);
-END$$
-
+-- TRIGGER
 
 -- Trigger per il controllo dell'anno
 CREATE TRIGGER controllo_anno1
@@ -150,6 +124,27 @@ END IF;
 END$$
 
 
+-- Trigger inserimento di tracce
+CREATE TRIGGER inserisci_durata_totale
+AFTER INSERT ON traccia
+FOR EACH ROW BEGIN
+CALL calcola_durata_totale(NEW.ID_disco);
+END$$
 
-    
-    
+
+-- Trigger inserimento di tracce
+CREATE TRIGGER aggiorna_durata_totale
+AFTER UPDATE ON traccia
+FOR EACH ROW BEGIN
+CALL calcola_durata_totale(NEW.ID_disco);
+END$$
+
+
+/*
+-- Trigger di cancellazione di un disco
+CREATE TRIGGER eliminazione_disco
+BEFORE DELETE ON doppione
+FOR EACH ROW BEGIN
+CALL eliminazione_da_collezione(OLD.ID_disco, OLD.ID_collezionista);
+END$$
+*/
