@@ -76,7 +76,7 @@ insert into `traccia` values
 (3, 'Young Lust', 331, 1),
 -- tracce del disco The Dark Side of the Moon
 (4, 'Eclipse', 121, 4),
-(5, 'Us and Them', 470, 4), 
+(5, 'Us and Them', 470, 4),
 -- tracce del disco Abbey Road
 (6, 'Come Together', 260, 3);
 
