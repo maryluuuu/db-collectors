@@ -27,19 +27,18 @@ BEGIN
 END$$
 
 -- Procedura calcolo durata_totale disco
-CREATE PROCEDURE calcola_durata_totale(id integer unsigned) 
-READS SQL DATA -- registrazione binaria
+CREATE PROCEDURE calcola_durata_totale(id_procedura INTEGER UNSIGNED) 
+READS SQL DATA
 BEGIN
-	DECLARE total INTEGER;
-    
-    SELECT SUM(durata) INTO total
-    FROM traccia
-    WHERE ID_disco = id;
-    
     UPDATE disco
-    SET durata_totale = total
-    WHERE ID = id;
+	SET durata_totale = (
+    SELECT SUM(durata)
+    FROM traccia
+    WHERE ID_disco = id_procedura
+)
+WHERE ID = id_procedura;
 END$$
+
 
 
 CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezionista integer unsigned)

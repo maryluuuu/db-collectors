@@ -62,6 +62,7 @@ create table disco(
     ID_etichetta integer unsigned,
     ID_genere integer unsigned,
     ID_collezione integer unsigned,
+    -- unique (titolo,anno_uscita,ID_etichetta,ID_genere,),
 			
 	constraint disco_etichetta foreign key (ID_etichetta)
 		references etichetta(ID) on delete set null on update cascade,
