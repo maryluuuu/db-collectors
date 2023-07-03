@@ -10,6 +10,8 @@ DROP PROCEDURE IF EXISTS lista_dischi;
 DROP PROCEDURE IF EXISTS modifica_stato_collezione;
 DROP PROCEDURE IF EXISTS tracklist;
 DROP PROCEDURE IF EXISTS trova_disco;
+DROP PROCEDURE IF EXISTS statistiche1;
+DROP PROCEDURE IF EXISTS statistiche2;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -32,15 +34,15 @@ BEGIN
 END$$
 
 -- Procedura calcolo durata_totale disco
-CREATE PROCEDURE calcola_durata_totale(id_procedura INTEGER UNSIGNED) 
+CREATE PROCEDURE calcola_durata_totale(id_disco INTEGER UNSIGNED) 
 BEGIN
     UPDATE disco
 	SET disco.durata_totale = (
-		SELECT SUM(durata)
+		SELECT SUM(traccia.durata)
 		FROM traccia
-		WHERE ID_disco = id_procedura
+		WHERE traccia.ID_disco = id_disco
 	)
-	WHERE ID = id_procedura;		
+	WHERE disco.ID = id_disco;		
 END$$
 
 
@@ -145,7 +147,20 @@ JOIN condivisa ON collezione.ID = condivisa.ID_collezione
 WHERE collezione.flag = 'privata' AND condivisa.ID_collezionista = id_collezionista;
 
   END$$
+  
+-- Statistiche: numero di collezioni di ciascun collezionista.
+CREATE PROCEDURE statistiche1()
+BEGIN
+SELECT nickname, COUNT(*) as numero_collezioni FROM collezione JOIN collezionista ON ID_collezionista=collezionista.ID
+GROUP BY ID_collezionista;
+END$$
 
+-- Statistiche: numero di dischi per genere nel sistema.
+CREATE PROCEDURE statistiche2()
+BEGIN
+SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=genere.ID
+GROUP BY ID_genere;
+END$$
 
 
 
@@ -173,7 +188,7 @@ END$$
 CREATE TRIGGER inserisci_durata_totale
 AFTER INSERT ON traccia
 FOR EACH ROW BEGIN
-  CALL calcolo_durata_Totale(NEW.ID_disco);
+  CALL calcola_durata_totale(NEW.ID_disco);
 END$$
 
 
@@ -200,4 +215,3 @@ END$$
 
 
 -- CALL trova_disco(2);
-    select * from disco;
