@@ -9,3 +9,8 @@ APPUNTI DIAGRAMMA E-R BASE:
 -rivedere formato perché con formato come entità non abbiamo la chiave primaria di doppione(oppure trovare una chiave primaria), nel caso di formato come attributo avremo la chiave primaria composta chiave_disco+formato+condizione 
 
 -verificare che il loop del diagramma e-r sia corretto 
+
+ORDINE DI ESECUZIONE FILE:
+structure.sql
+query.sql
+data.sql
