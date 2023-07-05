@@ -21,7 +21,8 @@ insert into `collezionista` values
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
 (1, 'I miei preferiti', 'privata', 2),
 (2, 'Pink Floyd music', 'pubblica', 2),
-(3, 'I miei preferiti', 'privata', 3);
+(3, 'I miei preferiti', 'privata', 3),
+(4, 'I miei preferiti', 'pubblica', 1);
 
 
 insert into `genere` values
@@ -114,14 +115,18 @@ delete from genere where ID = 1;
 
 -- Aggiunta di dischi a una collezione
 insert into `collezioni_dischi`(ID_collezione, ID_disco) values
-(3,4), (3,3), (1,3), (1,4);
+(3,4), (3,3), (1,3), (1,4), (4,5), (4,1), (4,3);
 
 
 -- Inserimento nella tabella composto
 insert into `composto`(ID_disco, ID_autore, ruolo) values
-(1,1,'compositore e esecutore'),
-(2,1,'compositore e esecutore'),
-(3,2,'compositore e esecutore'),
-(4,2,'compositore e esecutore'),
-(5,3,'compositore e esecutore');
+(1,1,'compositore ed esecutore'),
+(2,1,'compositore ed esecutore'),
+(3,2,'compositore ed esecutore'),
+(4,2,'compositore ed esecutore'),
+(5,3,'compositore ed esecutore');
+
+insert into `scritta`(ID_traccia, ID_autore) values
+(1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3);
+
 

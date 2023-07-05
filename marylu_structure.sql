@@ -121,7 +121,6 @@ create table doppione(
 		references collezionista(ID) on delete cascade on update cascade
 			-- cascade, cancellato il collezionista cancelli anche
 			-- i doppioni
-            
 );
 
 
@@ -172,7 +171,7 @@ create table composto(
 		references autore(ID) on delete cascade on update cascade,
         -- se elimino l'autore(tabella riferita) elimino tutte le colonne relative all'autore nella tabella referente(compone)
         -- autore non può essere nullo perchè primary key
-	constraint check_ruolo2 check (ruolo in ('compositore', 'esecutore', 'compositore e esecutore'))
+	constraint check_ruolo2 check (ruolo in ('compositore', 'esecutore', 'compositore ed esecutore'))
 		
 );
 
@@ -188,7 +187,7 @@ create table scritta(
         -- in questo modo garantisco che non vi siano righe di 'scritta' che fanno riferimento a tracce inesistenti
     foreign key (ID_autore) references autore(ID) on delete restrict on update cascade,
         -- posso eliminare l'autore se non è collegato a nessun disco o nessuna traccia
-	constraint check_ruolo check (ruolo in ('compositore', 'esecutore'))
+	constraint check_ruolo check (ruolo in ('compositore', 'esecutore', 'compositore ed esecutore'))
 );
 
 -- Relazione disco e collezione (n..m)

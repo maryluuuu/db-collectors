@@ -12,6 +12,7 @@ DROP PROCEDURE IF EXISTS tracklist;
 DROP PROCEDURE IF EXISTS trova_disco;
 DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
+DROP PROCEDURE IF EXISTS numero_brani;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -148,6 +149,22 @@ WHERE collezione.flag = 'privata' AND condivisa.ID_collezionista = id_collezioni
 
   END$$
   
+  -- Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
+CREATE PROCEDURE numero_brani(id_autore integer unsigned)
+BEGIN
+SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
+FROM scritta 
+JOIN traccia ON scritta.ID_traccia = traccia.ID
+JOIN autore ON scritta.ID_autore = autore.ID
+JOIN collezioni_dischi ON traccia.ID_disco=collezioni_dischi.ID_disco
+JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
+WHERE scritta.ID_autore=id_autore AND collezione.flag='pubblica'
+GROUP BY autore.nome;
+END$$
+  
+  
+  
+  
 -- Statistiche: numero di collezioni di ciascun collezionista.
 CREATE PROCEDURE statistiche1()
 BEGIN
@@ -215,3 +232,4 @@ END$$
 
 
 -- CALL trova_disco(2);
+call numero_brani(3);
