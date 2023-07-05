@@ -83,10 +83,11 @@ insert into `traccia`(ID, titolo, durata,ID_disco) values
 (5, 'Us and Them', 470, 4),
 -- tracce del disco Abbey Road
 (6, 'Come Together', 260, 3),
-(7, 'Here Comes The Sun', 216, 3),
+(7, 'Here Comes The Sun', 185, 3),
 -- tracce del disco Pet Sound
 (8, "Wouldn't It Be Nice", 142, 5),
-(9, "Caroline, No", 172,5);
+(9, "God Only Knows", 169,5),
+(10, "Caroline, No", 172,5);
 
 
 insert into `autore` (ID, nome, IPI) values
@@ -108,14 +109,14 @@ insert into `condivisa`(ID_collezionista, ID_collezione) values
 (1,1), (1,3);
 
 -- Cancellazione collezione
-delete from collezione where ID = 2;
+delete from collezione where ID = 3;
 
 -- Cancellazione genere
 delete from genere where ID = 1; 
 
 -- Aggiunta di dischi a una collezione
 insert into `collezioni_dischi`(ID_collezione, ID_disco) values
-(3,4), (3,3), (1,3), (1,4), (4,5), (4,1), (4,3);
+(2,4), (2,3),(2,5), (1,3), (1,4), (4,5), (4,1), (4,3);
 
 
 -- Inserimento nella tabella composto
@@ -127,6 +128,6 @@ insert into `composto`(ID_disco, ID_autore, ruolo) values
 (5,3,'compositore ed esecutore');
 
 insert into `scritta`(ID_traccia, ID_autore) values
-(1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3);
+(1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3), (10,3);
 
 

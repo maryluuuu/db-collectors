@@ -13,6 +13,7 @@ DROP PROCEDURE IF EXISTS trova_disco;
 DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
 DROP PROCEDURE IF EXISTS numero_brani;
+DROP PROCEDURE IF EXISTS minuti_totali;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -106,9 +107,10 @@ WHERE collezioni_dischi.ID_collezione=id_collezione;
 END$$
 
 -- Tracklist di un disco
-CREATE PROCEDURE tracklist (id_disco integer unsigned)
+CREATE PROCEDURE tracklist (disco integer unsigned)
 BEGIN
-SELECT * FROM traccia WHERE traccia.ID_disco = id_disco;
+SELECT DISTINCT * FROM traccia 
+WHERE traccia.ID_disco = disco;
 END$$ 
 
 -- Ricerca di dischi in base a nomi di...
@@ -150,7 +152,7 @@ WHERE collezione.flag = 'privata' AND condivisa.ID_collezionista = id_collezioni
   END$$
   
   -- Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
-CREATE PROCEDURE numero_brani(id_autore integer unsigned)
+CREATE PROCEDURE numero_brani(nomeautore varchar(50))
 BEGIN
 SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
 FROM scritta 
@@ -158,12 +160,28 @@ JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
 JOIN collezioni_dischi ON traccia.ID_disco=collezioni_dischi.ID_disco
 JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
-WHERE scritta.ID_autore=id_autore AND collezione.flag='pubblica'
+WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
 GROUP BY autore.nome;
 END$$
-  
-  
-  
+
+-- Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
+CREATE PROCEDURE minuti_totali(nomeautore varchar(50))
+BEGIN
+SELECT DISTINCT autore.nome, CONCAT(FLOOR(SUM(DISTINCT traccia.durata) / 60), '-',
+ ROUND((SUM(DISTINCT traccia.durata) % 60), 2)) AS durata_canzoni
+FROM scritta 
+JOIN traccia ON scritta.ID_traccia = traccia.ID
+JOIN autore ON scritta.ID_autore = autore.ID
+JOIN collezioni_dischi ON traccia.ID_disco=collezioni_dischi.ID_disco
+JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
+WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
+GROUP BY autore.nome;
+END$$
+
+
+
+
+
   
 -- Statistiche: numero di collezioni di ciascun collezionista.
 CREATE PROCEDURE statistiche1()
@@ -232,4 +250,4 @@ END$$
 
 
 -- CALL trova_disco(2);
-call numero_brani(3);
+call minuti_totali('The Beatles');
