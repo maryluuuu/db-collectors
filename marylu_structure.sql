@@ -58,7 +58,7 @@ create table disco(
     titolo_disco varchar(100) not null,
     anno_uscita smallint unsigned not null,
     barcode bigint(13) unsigned unique,
-    durata_totale smallint unsigned default 0, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
+    durata_totale time default 0, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
     ID_etichetta smallint unsigned,
     ID_genere smallint unsigned,
     -- unique (titolo,anno_uscita,ID_etichetta,ID_genere,),
@@ -79,7 +79,7 @@ create table disco(
 create table traccia(
 	ID integer unsigned auto_increment primary key,
     titolo varchar(100) unique not null,
-    durata smallint unsigned not null,
+    durata time not null,
     ID_disco integer unsigned not null,
 
     

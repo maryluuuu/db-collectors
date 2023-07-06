@@ -75,19 +75,19 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 -- Aggiunta di tracce a un disco.
 insert into `traccia`(ID, titolo, durata,ID_disco) values
 -- tracce del disco The Wall
-(1, 'Mother', 334, 1),
-(2, 'Stop', 31, 1),
-(3, 'Young Lust', 331, 1),
+(1, 'Mother', '00:05:36', 1),
+(2, 'Stop', '00:00:30', 1),
+(3, 'Young Lust', '00:03:29', 1),
 -- tracce del disco The Dark Side of the Moon
-(4, 'Eclipse', 121, 4),
-(5, 'Us and Them', 470, 4),
+(4, 'Eclipse', SEC_TO_TIME(121), 4),
+(5, 'Us and Them', SEC_TO_TIME(470), 4),
 -- tracce del disco Abbey Road
-(6, 'Come Together', 260, 3),
-(7, 'Here Comes The Sun', 185, 3),
+(6, 'Come Together', SEC_TO_TIME(260), 3),
+(7, 'Here Comes The Sun', SEC_TO_TIME(185), 3),
 -- tracce del disco Pet Sound
-(8, "Wouldn't It Be Nice", 142, 5),
-(9, "God Only Knows", 169,5),
-(10, "Caroline, No", 172,5);
+(8, "Wouldn't It Be Nice", SEC_TO_TIME(142), 5),
+(9, "God Only Knows", SEC_TO_TIME(169),5),
+(10, "Caroline, No", SEC_TO_TIME(172),5);
 
 
 insert into `autore` (ID, nome, IPI) values
