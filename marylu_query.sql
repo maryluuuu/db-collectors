@@ -40,7 +40,7 @@ CREATE PROCEDURE calcola_durata_totale(id_disco INTEGER UNSIGNED)
 BEGIN
     UPDATE disco
 	SET disco.durata_totale = (
-		SELECT SUM(traccia.durata)
+		SELECT SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata)))
 		FROM traccia
 		WHERE traccia.ID_disco = id_disco
 	)
@@ -48,7 +48,7 @@ BEGIN
 END$$
 
 
--- Procedura per la rimozione di un disco da una collezione
+-- 4. Procedura per la rimozione di un disco da una collezione
 CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezione integer unsigned)
 BEGIN
     DELETE FROM collezioni_dischi 
@@ -57,63 +57,37 @@ BEGIN
 END$$
 
 
--- Rimozione di un disco dal database
-CREATE PROCEDURE elimina_disco(disco_id integer unsigned) 
-BEGIN
-    DECLARE doppioni_count INT;
-
-    -- Controlla se ci sono doppioni collegati al disco
-    SELECT COUNT(*) INTO doppioni_count
-    FROM doppione
-    WHERE ID_disco = disco_id;
-
-    -- Se ci sono doppioni, elimina prima i doppioni e poi il disco
-    IF doppioni_count > 1 THEN
-        -- Diminuisci di una quantità i doppioni di ID_disco
-        UPDATE doppione
-        SET quantita = quantita - 1 WHERE ID_disco = disco_id;
-        
-        SELECT CONCAT('La quantita disponibile del disco ', disco_id, ' è ', quantita , '.') AS Message;
-    ELSE
-        -- Se non ci sono doppioni, elimina solo il disco
-        DELETE FROM disco
-        WHERE ID = disco_id;
-        
-        SELECT CONCAT('Disco con ID ', disco_id, ' eliminato.') AS Message;
-    END IF;
-END $$
-
--- Modifica dello stato della collezione
+-- 3. Modifica dello stato della collezione
 -- se la modifichiamo da privata a pubblica eliminiamo tutte le righe nella tabella condivisa corrispondenti
 -- perchè ora tutti possono vedere la collezione e non serve tenere un registro dei singoli collezionisti come nel caso privato
 CREATE PROCEDURE modifica_stato_collezione (id_collezione integer unsigned)
 BEGIN
 UPDATE collezione
 SET flag = CASE
-    WHEN flag = 'privata' THEN 'pubblica'
-    WHEN flag = 'pubblica' THEN 'privata'
+    WHEN flag = 0 THEN 1
+    WHEN flag = 1 THEN 0
 END
 WHERE ID=id_collezione;
-IF (SELECT flag FROM collezione WHERE ID=id_collezione) ='pubblica' THEN
+IF (SELECT flag FROM collezione WHERE ID=id_collezione) = 1 THEN
 	DELETE  FROM condivisa WHERE ID_collezione = id_collezione;
     END IF;
 END$$
 
--- Lista di tutti i dischi in una collezione
+-- 6. Lista di tutti i dischi in una collezione
 CREATE PROCEDURE lista_dischi (id_collezione integer unsigned)
 BEGIN
 SELECT * FROM disco JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
 WHERE collezioni_dischi.ID_collezione=id_collezione;
 END$$
 
--- Tracklist di un disco
+-- 7. Tracklist di un disco
 CREATE PROCEDURE tracklist (disco integer unsigned)
 BEGIN
 SELECT DISTINCT * FROM traccia 
 WHERE traccia.ID_disco = disco;
 END$$ 
 
--- Ricerca di dischi in base a nomi di...
+-- 8. Ricerca di dischi in base a nomi di...
 CREATE PROCEDURE trova_disco (id_collezionista integer unsigned)
 BEGIN
 SELECT titolo_disco FROM disco
@@ -128,17 +102,15 @@ OR disco.titolo_disco = '%Abbey Road%'
  JOIN composto ON disco.ID=composto.ID_disco
  JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
  JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
- WHERE collezione.ID_collezionista=id_collezionista and collezione.flag='privata'
+ WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=0
 
- 
  UNION
  -- Ricerca di dischi in collezioni pubbliche di un collezionista 
  SELECT titolo_disco FROM disco
  JOIN composto ON disco.ID=composto.ID_disco
  JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
  JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
- WHERE collezione.ID_collezionista=id_collezionista and collezione.flag='pubblica'
-
+ WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=1
  
  UNION
  -- Ricerca di dischi in collezioni condivise con un collezionista
@@ -147,11 +119,11 @@ OR disco.titolo_disco = '%Abbey Road%'
  JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
  JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
 JOIN condivisa ON collezione.ID = condivisa.ID_collezione
-WHERE collezione.flag = 'privata' AND condivisa.ID_collezionista = id_collezionista;
+WHERE collezione.flag = 0 AND condivisa.ID_collezionista = id_collezionista;
 
   END$$
   
-  -- Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
+  -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
 CREATE PROCEDURE numero_brani(nomeautore varchar(50))
 BEGIN
 SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
@@ -164,11 +136,10 @@ WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
 GROUP BY autore.nome;
 END$$
 
--- Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
+-- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
 CREATE PROCEDURE minuti_totali(nomeautore varchar(50))
 BEGIN
-SELECT DISTINCT autore.nome, CONCAT(FLOOR(SUM(DISTINCT traccia.durata) / 60), '-',
- ROUND((SUM(DISTINCT traccia.durata) % 60), 2)) AS durata_canzoni
+SELECT autore.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS durata_totale_minuti
 FROM scritta 
 JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
@@ -178,25 +149,20 @@ WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
 GROUP BY autore.nome;
 END$$
 
-
-
-
-
   
--- Statistiche: numero di collezioni di ciascun collezionista.
+-- 12.1 Statistiche: numero di collezioni di ciascun collezionista.
 CREATE PROCEDURE statistiche1()
 BEGIN
 SELECT nickname, COUNT(*) as numero_collezioni FROM collezione JOIN collezionista ON ID_collezionista=collezionista.ID
 GROUP BY ID_collezionista;
 END$$
 
--- Statistiche: numero di dischi per genere nel sistema.
+-- 12.2 Statistiche: numero di dischi per genere nel sistema.
 CREATE PROCEDURE statistiche2()
 BEGIN
 SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=genere.ID
 GROUP BY ID_genere;
 END$$
-
 
 
 -- TRIGGER
@@ -250,4 +216,4 @@ END$$
 
 
 -- CALL trova_disco(2);
-call minuti_totali('The Beatles');
+call minuti_totali('Pink Floyd');

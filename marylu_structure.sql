@@ -2,7 +2,6 @@ drop database if exists progettoLab;
 create database progettoLab;
 use progettoLab;
 
-drop table if exists collezionista; -- X
 drop table if exists collezione; -- X
 drop table if exists genere; -- X
 drop table if exists etichetta; -- X
@@ -12,25 +11,12 @@ drop table if exists autore; -- X
 drop table if exists doppione; -- X
 drop table if exists immagine; -- X
 drop table if exists composto; -- X
-
-
-create table collezionista(
-	ID integer unsigned auto_increment primary key,
-	nickname varchar(60) not null,
-    email varchar(100) not null,
-    
-    constraint collezionista_distinto unique (nickname, email)  
-);
-
  
 create table collezione(
 	ID integer unsigned auto_increment primary key,
     nome varchar(80) not null,
-    flag varchar(12) not null default 'privata',
+    flag  boolean not null default 0, -- privata -> 0 pubblica -> 1
     ID_collezionista integer unsigned not null,
-    
-    constraint check_share check (flag in ('pubblica', 'privata')),
-		-- flag può essere pubblico o privato
     
 	constraint collezione_collezionista foreign key (ID_collezionista) 
 		references collezionista(ID) on delete cascade on update cascade,
@@ -61,7 +47,7 @@ create table disco(
     durata_totale time default 0, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
     ID_etichetta smallint unsigned,
     ID_genere smallint unsigned,
-    -- unique (titolo,anno_uscita,ID_etichetta,ID_genere,),
+    -- unique (titolo,anno_uscita,ID_etichetta,ID_genere,), DA RIVEDERE
 			
 	constraint disco_etichetta foreign key (ID_etichetta)
 		references etichetta(ID) on delete set null on update cascade,

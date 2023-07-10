@@ -2,7 +2,6 @@
 use progettolab;
 
 -- svuotiamo le tabelle
-delete from `collezionista`;
 delete from `collezione`;
 delete from `genere`;
 delete from `etichetta`;
@@ -11,18 +10,12 @@ delete from `traccia`;
 delete from `autore`;
 delete from `doppione`;
 
-
-insert into `collezionista` values
-(1,'alice', 'alice.lyndon@mail.it'),
-(2,'bob','bob.evans@mail.it'),
-(3,'tyler','tyler.lynch@mail.it');
-
 -- Inserimento di una nuova collezione
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
-(1, 'I miei preferiti', 'privata', 2),
-(2, 'Pink Floyd music', 'pubblica', 2),
-(3, 'I miei preferiti', 'privata', 3),
-(4, 'I miei preferiti', 'pubblica', 1);
+(1, 'I miei preferiti', 0, 2),
+(2, 'Pink Floyd music', 1, 2),
+(3, 'I miei preferiti', 0, 3),
+(4, 'I miei preferiti', 1, 1);
 
 
 insert into `genere` values
@@ -73,11 +66,11 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 (5, 'Pet Sounds', 1966, 0000000018, 4, 5);
 
 -- Aggiunta di tracce a un disco.
-insert into `traccia`(ID, titolo, durata,ID_disco) values
+insert into `traccia`(ID, titolo, durata, ID_disco) values
 -- tracce del disco The Wall
-(1, 'Mother', '00:05:36', 1),
-(2, 'Stop', '00:00:30', 1),
-(3, 'Young Lust', '00:03:29', 1),
+(1, 'Mother', SEC_TO_TIME(322), 1),
+(2, 'Stop', SEC_TO_TIME(30), 1),
+(3, 'Young Lust', SEC_TO_TIME(198), 1),
 -- tracce del disco The Dark Side of the Moon
 (4, 'Eclipse', SEC_TO_TIME(121), 4),
 (5, 'Us and Them', SEC_TO_TIME(470), 4),
