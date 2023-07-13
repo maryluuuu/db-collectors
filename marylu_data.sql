@@ -116,7 +116,7 @@ delete from collezione where ID = 3;
 delete from genere where ID = 1; 
 
 -- Aggiunta di dischi a una collezione
-insert into `collezioni_dischi`(ID_collezione, ID_disco) values
+insert into `raccolta`(ID_collezione, ID_disco) values
 (2,4), (2,3),(2,5), (1,3), (1,4), (4,5), (4,1), (4,3);
 
 

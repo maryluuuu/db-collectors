@@ -198,7 +198,7 @@ create table scritta(
 );
 
 -- Relazione disco e collezione (n..m)
-create table collezioni_dischi(
+create table raccolta(
 ID_collezione integer unsigned not null,
 ID_disco integer unsigned not null,
 foreign key (ID_collezione) references collezione(ID) on delete cascade on update cascade,

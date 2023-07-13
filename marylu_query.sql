@@ -55,7 +55,7 @@ END$$
 -- 4. Procedura per la rimozione di un disco da una collezione
 CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezione integer unsigned)
 BEGIN
-    DELETE FROM collezioni_dischi 
+    DELETE FROM raccolta 
     WHERE ID_disco = id_disco and ID_collezione = id_collezione;
     
 END$$
@@ -80,8 +80,8 @@ END$$
 -- 6. Lista di tutti i dischi in una collezione
 CREATE PROCEDURE lista_dischi (id_collezione integer unsigned)
 BEGIN
-SELECT * FROM disco JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
-WHERE collezioni_dischi.ID_collezione=id_collezione;
+SELECT * FROM disco JOIN raccolta ON disco.ID=raccolta.ID_disco
+WHERE raccolta.ID_collezione=id_collezione;
 END$$
 
 -- 7. Tracklist di un disco
@@ -104,24 +104,24 @@ OR disco.titolo_disco = '%Abbey Road%'
  -- Ricerca collezioni private di un collezionista
  SELECT titolo_disco FROM disco
  JOIN composto ON disco.ID=composto.ID_disco
- JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
- JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
+ JOIN raccolta ON disco.ID=raccolta.ID_disco
+ JOIN collezione ON collezione.ID=raccolta.ID_collezione
  WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=0
 
  UNION
  -- Ricerca di dischi in collezioni pubbliche di un collezionista 
  SELECT titolo_disco FROM disco
  JOIN composto ON disco.ID=composto.ID_disco
- JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
- JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
+ JOIN raccolta ON disco.ID=raccolta.ID_disco
+ JOIN collezione ON collezione.ID=raccolta.ID_collezione
  WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=1
  
  UNION
  -- Ricerca di dischi in collezioni condivise con un collezionista
  SELECT titolo_disco FROM disco
  JOIN composto ON disco.ID=composto.ID_disco
- JOIN collezioni_dischi ON disco.ID=collezioni_dischi.ID_disco
- JOIN collezione ON collezione.ID=collezioni_dischi.ID_collezione
+ JOIN raccolta ON disco.ID=raccolta.ID_disco
+ JOIN collezione ON collezione.ID=raccolta.ID_collezione
 JOIN condivisa ON collezione.ID = condivisa.ID_collezione
 WHERE collezione.flag = 0 AND condivisa.ID_collezionista = id_collezionista;
 
@@ -132,20 +132,20 @@ CREATE PROCEDURE verifica_visibilita (id_collezionista integer unsigned, id_coll
 SELECT disco.*
 FROM collezione c 
 JOIN condivisa ON c.ID = condivisa.ID_collezione
-JOIN collezioni_dischi ON collezioni_dischi.ID_collezione = c.ID
-JOIN disco ON disco.ID=collezioni_dischi.ID_disco
+JOIN raccolta ON raccolta.ID_collezione = c.ID
+JOIN disco ON disco.ID=raccolta.ID_disco
 WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1);
 
 -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
-CREATE PROCEDURE numero_brani (nomeautore varchar(50))
+CREATE PROCEDURE numero_brani (id_autore integer unsigned)
 BEGIN
 SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
 FROM scritta 
 JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
-JOIN collezioni_dischi ON traccia.ID_disco=collezioni_dischi.ID_disco
-JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
-WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
+JOIN raccolta ON traccia.ID_disco=raccolta.ID_disco
+JOIN collezione ON raccolta.ID_collezione = collezione.ID
+WHERE autore.ID=id_autore AND collezione.flag=1
 GROUP BY autore.nome;
 END$$
 
@@ -156,9 +156,9 @@ SELECT autore.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS du
 FROM scritta 
 JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
-JOIN collezioni_dischi ON traccia.ID_disco=collezioni_dischi.ID_disco
+JOIN raccolta ON traccia.ID_disco=raccolta.ID_disco
 JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
-WHERE autore.nome=nomeautore AND collezione.flag='pubblica'
+WHERE autore.nome=nomeautore AND collezione.flag=1
 GROUP BY autore.nome;
 END$$
 
@@ -236,7 +236,7 @@ CREATE TRIGGER cambia_stato_collezione
 AFTER UPDATE ON collezione
 FOR EACH ROW
 BEGIN
-    IF NEW.flag = 'privata' AND OLD.flag = 'pubblica' THEN
+    IF NEW.flag = 0 AND OLD.flag = 1 THEN
         IF (
             SELECT COUNT(*) FROM condivisa WHERE ID_collezione = NEW.ID
         ) != 0 THEN
@@ -266,3 +266,4 @@ END$$
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
+CALL numero_brani(1);
