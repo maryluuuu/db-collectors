@@ -150,7 +150,7 @@ GROUP BY autore.nome;
 END$$
 
 -- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
-CREATE PROCEDURE minuti_totali(nomeautore varchar(50))
+CREATE PROCEDURE minuti_totali(id_autore integer unsigned)
 BEGIN
 SELECT autore.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS durata_totale_minuti
 FROM scritta 
@@ -158,8 +158,8 @@ JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
 JOIN raccolta ON traccia.ID_disco=raccolta.ID_disco
 JOIN collezione ON raccolta.ID_collezione = collezione.ID
-WHERE autore.nome=nomeautore AND collezione.flag=1
-GROUP BY autore.nome;
+WHERE autore.ID=id_autore AND collezione.flag=1
+GROUP BY autore.ID;
 END$$
 
   
@@ -266,4 +266,4 @@ END$$
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
-CALL numero_brani(1);
+CALL minuti_totali(2);
