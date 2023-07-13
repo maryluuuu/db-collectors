@@ -2,7 +2,7 @@
 use progettolab;
 
 -- svuotiamo le tabelle
-delete from `ruolo`;
+-- delete from `ruolo`;
 delete from `collezionista`;
 delete from `collezione`;
 delete from `genere`;
@@ -12,14 +12,15 @@ delete from `traccia`;
 delete from `autore`;
 delete from `doppione`;
 
-insert into `ruolo` (ID,nome) values
+/* insert into `ruolo` (ID,nome) values
     (1, 'admin'),
     (2, 'utente');
+*/
     
-insert into `collezionista`(ID, nickname, email, ID_ruolo, passkey) values
-(1,'alice', 'alice.lyndon@mail.it', 1, 'a_random_password'),
-(2,'bob','bob.evans@mail.it', 2, 'another_random_password'),
-(3,'tyler','tyler.lynch@mail.it', 2, 'pipeline00' );
+insert into `collezionista`(ID, nickname, email, passkey) values
+(1,'alice', 'alice.lyndon@mail.it', 'a_random_password'),
+(2,'bob','bob.evans@mail.it', 'another_random_password'),
+(3,'tyler','tyler.lynch@mail.it', 'pipeline00' );
 
 -- Inserimento di una nuova collezione
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
