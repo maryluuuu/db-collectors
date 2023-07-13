@@ -2,6 +2,8 @@
 use progettolab;
 
 -- svuotiamo le tabelle
+delete from `ruolo`;
+delete from `collezionista`;
 delete from `collezione`;
 delete from `genere`;
 delete from `etichetta`;
@@ -10,6 +12,15 @@ delete from `traccia`;
 delete from `autore`;
 delete from `doppione`;
 
+insert into `ruolo` (ID,nome) values
+    (1, 'admin'),
+    (2, 'utente');
+    
+insert into `collezionista`(ID, nickname, email, ID_ruolo, passkey) values
+(1,'alice', 'alice.lyndon@mail.it', 1, 'a_random_password'),
+(2,'bob','bob.evans@mail.it', 2, 'another_random_password'),
+(3,'tyler','tyler.lynch@mail.it', 2, 'pipeline00' );
+
 -- Inserimento di una nuova collezione
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
 (1, 'I miei preferiti', 0, 2),
@@ -17,7 +28,7 @@ insert into `collezione`(ID, nome, flag, ID_collezionista) values
 (3, 'I miei preferiti', 0, 3),
 (4, 'I miei preferiti', 1, 1);
 
-
+-- Inserimento di generi musicali
 insert into `genere` values
 (1,'Progressive Rock'),
 (2,'Art Rock'),
@@ -25,7 +36,7 @@ insert into `genere` values
 (4, 'Rock and roll'),
 (5, 'Sunshine Pop');
 
-
+-- Inserimento delle etichette discografiche
 insert into `etichetta` values
 (1, 'Sony Music Entertainment'),
 (2, 'Universal Music Group'),
@@ -42,13 +53,11 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 
 -- disco 'The Dark Side of the Moon' del 1973, non esiste barcode, durata tot(Eclipse + Us and Them),
 -- della Warner-Elektra-Atlantic, genere Progressive Pop,
--- della collezione 'Pink Floyd Music' di bob
 (2, 'The Dark Side of the Moon', 1973, null, 1, 3),
 
 
 -- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
--- della collezione 'I miei preferiti' di alice
 (3, 'Abbey Road', 1969, null, 2, 2),
 -- select sum(durata) from traccia where id_disco=3 ho tolto questa riga di codice perchè l'entità disco viene creata prima di traccia
 -- quando viene creato il disco non ci sono tracce associate quindi la durata di default è null.
@@ -56,13 +65,11 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 
 -- disco 'The Wall' del 1979, barcode 0000000013, durata tot(Mother + Stop + Young Lust),
 -- della Sony Music Entertainment, genere Progressive Rock,
--- della collezione 'I miei preferiti' di alice
 (4, "Sgt. Pepper's Lonely Hearts Club Band ", 1967, 0000000015, 4, 4),
 
 
 -- disco 'Abbey Road' del 1969, non esiste barctracciaode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
--- della collezione 'I miei preferiti' di bob
 (5, 'Pet Sounds', 1966, 0000000018, 4, 5);
 
 -- Aggiunta di tracce a un disco.
@@ -88,7 +95,7 @@ insert into `autore` (ID, nome, IPI) values
 (2,'The Beatles', 0000007906),
 (3, 'The Beach Boys',0000003897);
 
-
+-- Inserimento dei doppioni di dischi dei collezionisti
 insert into `doppione` values
 (1, 4, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
 (1, 2, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
@@ -120,6 +127,7 @@ insert into `composto`(ID_disco, ID_autore, ruolo) values
 (4,2,'compositore ed esecutore'),
 (5,3,'compositore ed esecutore');
 
+-- Inserimento dell'associazione tra traccia e autore
 insert into `scritta`(ID_traccia, ID_autore) values
 (1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3), (10,3);
 

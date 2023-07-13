@@ -1,7 +1,9 @@
-drop database if exists progettoLab;
-create database progettoLab;
-use progettoLab;
+drop database if exists progettolab;
+create database progettolab;
+use progettolab;
 
+drop table if exists ruolo;
+drop table if exists collezionista;
 drop table if exists collezione; -- X
 drop table if exists genere; -- X
 drop table if exists etichetta; -- X
@@ -11,6 +13,22 @@ drop table if exists autore; -- X
 drop table if exists doppione; -- X
 drop table if exists immagine; -- X
 drop table if exists composto; -- X
+
+create table ruolo(
+ID tinyint unsigned auto_increment primary key,
+nome varchar(20) not null
+);
+
+create table collezionista(
+	ID integer unsigned auto_increment primary key,
+	nickname varchar(60) not null,
+    email varchar(100) not null,
+    ID_ruolo tinyint unsigned,
+    passkey varchar(50) not null,
+    
+    foreign key (ID_ruolo) references ruolo(ID) on delete cascade on update cascade,
+    constraint collezionista_distinto unique (nickname, email)  
+);
  
 create table collezione(
 	ID integer unsigned auto_increment primary key,

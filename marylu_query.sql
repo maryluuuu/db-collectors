@@ -9,11 +9,12 @@ DROP PROCEDURE IF EXISTS elimina_disco;
 DROP PROCEDURE IF EXISTS lista_dischi;
 DROP PROCEDURE IF EXISTS modifica_stato_collezione;
 DROP PROCEDURE IF EXISTS tracklist;
-DROP PROCEDURE IF EXISTS trova_disco;
+DROP PROCEDURE IF EXISTS trova_disco; -- DA RIVEDERE
 DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
 DROP PROCEDURE IF EXISTS numero_brani;
 DROP PROCEDURE IF EXISTS minuti_totali;
+DROP PROCEDURE IF EXISTS grant_procedura;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -23,6 +24,8 @@ DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 DROP TRIGGER IF EXISTS eliminazione_disco;
 DROP trigger IF EXISTS eliminazione_collezione;
 DROP TRIGGER IF EXISTS cambia_stato_collezione;
+DROP TRIGGER IF EXISTS grant_trigger1;
+DROP TRIGGER IF EXISTS grant_trigger2;
 
 DELIMITER $$
 
@@ -164,6 +167,22 @@ SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=gener
 GROUP BY ID_genere;
 END$$
 
+CREATE PROCEDURE grant_procedura(id_ruolo tinyint unsigned)
+BEGIN
+DECLARE ruolo1 tinyint unsigned;
+DECLARE nickname1 varchar(50);
+  
+  SELECT ID_ruolo INTO ruolo1 FROM collezionista WHERE ID = NEW.ID;
+  SELECT nickname INTO nickname1 FROM collezionista WHERE ID = NEW.ID;
+  CASE ruolo1
+    WHEN 1 THEN
+      GRANT ALL PRIVILEGES ON progettolab.* TO nickname1@'localhost';
+    WHEN 2 THEN
+      GRANT SELECT, INSERT, UPDATE, DELETE ON progettolab.* TO nickname1@'localhost';
+  END CASE;
+  FLUSH PRIVILEGES;
+END$$
+
 
 -- TRIGGER
 
@@ -214,6 +233,25 @@ BEGIN
     END IF;
 END$$
 
+-- Trigger per l'assegnamento dei privilegi dopo un inserimento
+CREATE TRIGGER grant_trigger1
+AFTER INSERT ON collezionista
+FOR EACH ROW
+BEGIN
+  CALL grant_procedura(NEW.ID_ruolo);
+END$$
+
+-- Trigger per l'assegnamento dei privilegi dopo un aggiornamento
+CREATE TRIGGER grant_trigger2
+AFTER UPDATE ON collezionista
+FOR EACH ROW
+BEGIN
+CALL grant_procedura(NEW.ID_ruolo);
+END$$
+
+
 
 -- CALL trova_disco(2);
-call minuti_totali('Pink Floyd');
+-- CALL minuti_totali('Pink Floyd');
+
+SHOW GRANTS FOR 'alice'@'localhost';
