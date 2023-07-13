@@ -14,7 +14,8 @@ DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
 DROP PROCEDURE IF EXISTS numero_brani;
 DROP PROCEDURE IF EXISTS minuti_totali;
-DROP PROCEDURE IF EXISTS grant_procedura;
+DROP PROCEDURE IF EXISTS verifica_visibilita;
+-- DROP PROCEDURE IF EXISTS grant_procedura;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -24,8 +25,8 @@ DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 DROP TRIGGER IF EXISTS eliminazione_disco;
 DROP trigger IF EXISTS eliminazione_collezione;
 DROP TRIGGER IF EXISTS cambia_stato_collezione;
-DROP TRIGGER IF EXISTS grant_trigger1;
-DROP TRIGGER IF EXISTS grant_trigger2;
+-- DROP TRIGGER IF EXISTS grant_trigger1;
+-- DROP TRIGGER IF EXISTS grant_trigger2;
 
 DELIMITER $$
 
@@ -126,8 +127,17 @@ WHERE collezione.flag = 0 AND condivisa.ID_collezionista = id_collezionista;
 
   END$$
   
-  -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
-CREATE PROCEDURE numero_brani(nomeautore varchar(50))
+-- 9. Verifica della visibilità di una collezione da parte di un collezionista.
+CREATE PROCEDURE verifica_visibilita (id_collezionista integer unsigned, id_collezione integer unsigned)
+SELECT disco.*
+FROM collezione c 
+JOIN condivisa ON c.ID = condivisa.ID_collezione
+JOIN collezioni_dischi ON collezioni_dischi.ID_collezione = c.ID
+JOIN disco ON disco.ID=collezioni_dischi.ID_disco
+WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1);
+
+-- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
+CREATE PROCEDURE numero_brani (nomeautore varchar(50))
 BEGIN
 SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
 FROM scritta 
@@ -167,6 +177,7 @@ SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=gener
 GROUP BY ID_genere;
 END$$
 
+/*
 CREATE PROCEDURE grant_procedura(id_ruolo tinyint unsigned)
 BEGIN
 DECLARE ruolo1 tinyint unsigned;
@@ -182,6 +193,7 @@ DECLARE nickname1 varchar(50);
   END CASE;
   FLUSH PRIVILEGES;
 END$$
+*/
 
 
 -- TRIGGER
@@ -233,7 +245,7 @@ BEGIN
     END IF;
 END$$
 
--- Trigger per l'assegnamento dei privilegi dopo un inserimento
+/* Trigger per l'assegnamento dei privilegi dopo un inserimento
 CREATE TRIGGER grant_trigger1
 AFTER INSERT ON collezionista
 FOR EACH ROW
@@ -248,10 +260,9 @@ FOR EACH ROW
 BEGIN
 CALL grant_procedura(NEW.ID_ruolo);
 END$$
-
+*/
 
 
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
-
-SHOW GRANTS FOR 'alice'@'localhost';
+-- CALL verifica_visibilita(1,1);
