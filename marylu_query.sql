@@ -157,7 +157,7 @@ FROM scritta
 JOIN traccia ON scritta.ID_traccia = traccia.ID
 JOIN autore ON scritta.ID_autore = autore.ID
 JOIN raccolta ON traccia.ID_disco=raccolta.ID_disco
-JOIN collezione ON collezioni_dischi.ID_collezione = collezione.ID
+JOIN collezione ON raccolta.ID_collezione = collezione.ID
 WHERE autore.nome=nomeautore AND collezione.flag=1
 GROUP BY autore.nome;
 END$$
