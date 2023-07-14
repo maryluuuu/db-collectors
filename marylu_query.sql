@@ -170,7 +170,7 @@ END$$
 -- 12.2 Statistiche: numero di dischi per genere nel sistema.
 CREATE PROCEDURE statistiche2()
 BEGIN
-SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=genere.ID
+SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON genere.ID = disco.ID_genere
 GROUP BY ID_genere;
 END$$
 
@@ -228,4 +228,3 @@ END$$
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
--- SELECT * from mysql.user

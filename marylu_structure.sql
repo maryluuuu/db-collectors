@@ -12,6 +12,7 @@ drop table if exists autore; -- X
 drop table if exists doppione; -- X
 drop table if exists immagine; -- X
 drop table if exists composto; -- X
+drop table if exists raccolta;
 
 
 DROP USER 'collezioneAdmin'@'localhost';
