@@ -15,7 +15,7 @@ drop table if exists composto; -- X
 drop table if exists raccolta;
 
 
-DROP USER 'collezioneAdmin'@'localhost';
+-- DROP USER 'collezioneAdmin'@'localhost';
 CREATE USER 'collezioneAdmin'@'localhost' IDENTIFIED BY 'randompassword';
 GRANT ALL ON progettolab.* TO 'collezioneAdmin'@'localhost';
 
@@ -25,7 +25,7 @@ create table collezionista(
     email varchar(100) not null,
     passkey varchar(50) not null,
     
-    constraint collezionista_distinto unique (nickname, email)  
+    constraint collezionista_distinto unique (nickname)  
 );
  
 create table collezione(
