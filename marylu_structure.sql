@@ -13,17 +13,10 @@ drop table if exists doppione; -- X
 drop table if exists immagine; -- X
 drop table if exists composto; -- X
 
-/*
-DROP USER 'alice'@'localhost';
-DROP USER 'bob'@'localhost';
-DROP USER 'tyler'@'localhost';
-CREATE USER 'alice'@'localhost' IDENTIFIED BY 'randompassword';
-GRANT ALL ON progettolab.* TO 'alice'@'localhost';
-CREATE USER 'bob'@'localhost' IDENTIFIED BY 'pipeline00';
-GRANT select,insert,update,delete,execute ON progettolab.* TO 'bob'@'localhost';
-CREATE USER 'tyler'@'localhost' IDENTIFIED BY 'pipeline01';
-GRANT select,insert,update,delete,execute ON progettolab.* TO 'tyler'@'localhost';
-*/
+
+DROP USER 'collezioneAdmin'@'localhost';
+CREATE USER 'collezioneAdmin'@'localhost' IDENTIFIED BY 'randompassword';
+GRANT ALL ON progettolab.* TO 'collezioneAdmin'@'localhost';
 
 create table collezionista(
 	ID integer unsigned auto_increment primary key,

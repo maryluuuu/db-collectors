@@ -15,7 +15,6 @@ DROP PROCEDURE IF EXISTS statistiche2;
 DROP PROCEDURE IF EXISTS numero_brani;
 DROP PROCEDURE IF EXISTS minuti_totali;
 DROP PROCEDURE IF EXISTS verifica_visibilita;
-DROP PROCEDURE IF EXISTS inserimento_utente;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -175,32 +174,6 @@ SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON ID_genere=gener
 GROUP BY ID_genere;
 END$$
 
--- Procedura per dare privilegi admin
--- ...
-
--- Procedura per l'inserimento utenti
-CREATE PROCEDURE inserimento_utente(nickname1 varchar(50), email1 varchar(100), passkey1 varchar(100))
-BEGIN
-  -- Creazione dell'utente
-  SET @create_user_query = CONCAT('CREATE USER ', nickname1, '@localhost IDENTIFIED BY "', passkey1, '"');
-  PREPARE create_user_stmt FROM @create_user_query;
-  EXECUTE create_user_stmt;
-  DEALLOCATE PREPARE create_user_stmt;
-  
-  -- Assegnazione dei privilegi
-  SET @grant_query = CONCAT('GRANT SELECT, INSERT, DELETE, UPDATE ON progettolab.* TO ', nickname1, '@localhost');
-  PREPARE grant_stmt FROM @grant_query;
-  EXECUTE grant_stmt;
-  DEALLOCATE PREPARE grant_stmt;
-  
-  -- Inserimento delle informazioni nella tabella "collezionista"
-  INSERT INTO collezionista (nickname, email, passkey) VALUES (nickname1, email1, passkey1);
-  
-  -- Aggiornamento dei privilegi
-  FLUSH PRIVILEGES;
-END$$
-
-
 
 -- TRIGGER
 
@@ -256,4 +229,3 @@ END$$
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 -- SELECT * from mysql.user
-SHOW GRANTS FOR 'alice'@'localhost';
