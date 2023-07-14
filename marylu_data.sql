@@ -12,15 +12,14 @@ delete from `traccia`;
 delete from `autore`;
 delete from `doppione`;
 
-/* insert into `ruolo` (ID,nome) values
-    (1, 'admin'),
-    (2, 'utente');
-*/
-    
-insert into `collezionista`(ID, nickname, email, passkey) values
-(1,'alice', 'alice.lyndon@mail.it', 'a_random_password'),
-(2,'bob','bob.evans@mail.it', 'another_random_password'),
-(3,'tyler','tyler.lynch@mail.it', 'pipeline00' );
+-- Inserimento dei collezionisti
+DROP USER 'alice'@'localhost';
+DROP USER 'bob'@'localhost';
+DROP USER 'tyler'@'localhost';
+CALL inserimento_utente('alice','alice.lyndon@mail.it','randompassword');
+CALL inserimento_utente('bob','bob.evans@mail.it','pipeline00');
+CALL inserimento_utente('tyler','tyler.lynch@mail.it','pipeline01');
+
 
 -- Inserimento di una nuova collezione
 insert into `collezione`(ID, nome, flag, ID_collezionista) values
