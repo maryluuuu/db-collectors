@@ -25,6 +25,7 @@ DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 
 -- Elimina le viste esistenti
 DROP VIEW IF EXISTS dischiCPubbliche;
+DROP VIEW IF EXISTS dischiAutori;
 
 DELIMITER $$
 
@@ -49,16 +50,6 @@ BEGIN
 	WHERE disco.ID = id_disco;		
 END$$
 
-
--- 4. Procedura per la rimozione di un disco da una collezione
-CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezione integer unsigned)
-BEGIN
-    DELETE FROM raccolta 
-    WHERE ID_disco = id_disco and ID_collezione = id_collezione;
-    
-END$$
-
-
 -- 3. Modifica dello stato della collezione
 -- se la modifichiamo da privata a pubblica eliminiamo tutte le righe nella tabella condivisa corrispondenti
 -- perchè ora tutti possono vedere la collezione e non serve tenere un registro dei singoli collezionisti come nel caso privato
@@ -73,6 +64,14 @@ WHERE ID=id_collezione;
 IF (SELECT flag FROM collezione WHERE ID=id_collezione) = 1 THEN
 	DELETE  FROM condivisa WHERE ID_collezione = id_collezione;
     END IF;
+END$$
+
+-- 4. Procedura per la rimozione di un disco da una collezione
+CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezione integer unsigned)
+BEGIN
+    DELETE FROM raccolta 
+    WHERE ID_disco = id_disco and ID_collezione = id_collezione;
+    
 END$$
 
 -- 6. Lista di tutti i dischi in una collezione
@@ -90,38 +89,40 @@ WHERE traccia.ID_disco = disco;
 END$$ 
 
 -- 8. Ricerca di dischi in base a nomi di...
-CREATE PROCEDURE trova_disco (id_collezionista integer unsigned)
+CREATE PROCEDURE trova_disco (id_collezionista integer unsigned, nome_autore varchar(50), titolo_disco varchar(50))
 BEGIN
-SELECT titolo_disco FROM disco
-JOIN composto ON disco.ID = composto.ID_disco
-WHERE composto.ID_autore is null
-OR composto.ruolo is null
-OR composto.ruolo is null
-OR disco.titolo_disco = '%Abbey Road%'
- UNION
- -- Ricerca collezioni private di un collezionista
- SELECT titolo_disco FROM disco
- JOIN composto ON disco.ID=composto.ID_disco
- JOIN raccolta ON disco.ID=raccolta.ID_disco
- JOIN collezione ON collezione.ID=raccolta.ID_collezione
- WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=0
+-- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni private di un collezionista
+SELECT disco.titolo_disco
+FROM disco
+JOIN composto ON composto.ID_disco = disco.ID
+JOIN autore ON autore.ID = composto.ID_autore
+JOIN raccolta ON raccolta.ID_disco=disco.ID
+JOIN collezione ON collezione.ID = raccolta.ID_collezione
+WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+    AND collezione.flag = 0
+    AND collezione.ID_collezionista = id_collezionista
+UNION
 
- UNION
- -- Ricerca di dischi in collezioni pubbliche di un collezionista 
- SELECT titolo_disco FROM disco
- JOIN composto ON disco.ID=composto.ID_disco
- JOIN raccolta ON disco.ID=raccolta.ID_disco
- JOIN collezione ON collezione.ID=raccolta.ID_collezione
- WHERE collezione.ID_collezionista=id_collezionista and collezione.flag=1
- 
- UNION
- -- Ricerca di dischi in collezioni condivise con un collezionista
- SELECT titolo_disco FROM disco
- JOIN composto ON disco.ID=composto.ID_disco
- JOIN raccolta ON disco.ID=raccolta.ID_disco
- JOIN collezione ON collezione.ID=raccolta.ID_collezione
-JOIN condivisa ON collezione.ID = condivisa.ID_collezione
-WHERE collezione.flag = 0 AND condivisa.ID_collezionista = id_collezionista;
+-- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni condivise con un collezionista
+SELECT disco.titolo_disco
+FROM disco
+JOIN composto ON composto.ID_disco = disco.ID
+JOIN autore ON autore.ID = composto.ID_autore
+JOIN collezione ON collezione.ID = raccolta.ID_collezione
+JOIN condivisa ON condivisa.ID_collezione = collezione.ID
+WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+    AND condivisa.ID_collezionista = id_collezionista
+
+UNION
+
+-- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni pubbliche
+SELECT disco.titolo_disco
+FROM disco
+JOIN composto ON composto.ID_disco = disco.ID
+JOIN autore ON autore.ID = composto.ID_autore
+JOIN raccolta ON raccolta.ID_disco = disco.ID
+JOIN dischiCPubbliche ON dischiCPubbliche.ID = raccolta.ID_disco
+WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')));
 
   END$$
   
@@ -137,29 +138,25 @@ WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivi
 -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
 CREATE PROCEDURE braniPerAutore(id_autore integer unsigned)
 BEGIN
-SELECT autore.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani
-FROM autore
-JOIN composto ON composto.ID_autore = autore.ID
-JOIN disco ON disco.ID=composto.ID_disco
-JOIN traccia ON traccia.ID_disco=disco.ID
-LEFT JOIN scritta ON scritta.ID_autore=autore.ID
-JOIN dischiCPubbliche ON dischiCPubbliche.ID=disco.ID
-WHERE autore.ID=id_autore
-GROUP BY autore.ID;
+SELECT dischiAutori.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani
+FROM dischiAutori 
+JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco
+LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore
+JOIN dischiCPubbliche ON dischiCPubbliche.ID=dischiAutori.ID_disco
+WHERE dischiAutori.ID_autore=id_autore
+GROUP BY dischiAutori.ID_autore;
 END$$
 
 -- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
 CREATE PROCEDURE minutiPerAutore(id_autore integer unsigned)
 BEGIN
-SELECT autore.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani
-FROM autore
-JOIN composto ON composto.ID_autore = autore.ID
-JOIN disco ON disco.ID=composto.ID_disco
-JOIN traccia ON traccia.ID_disco=disco.ID
-LEFT JOIN scritta ON scritta.ID_autore=autore.ID
-JOIN dischiCPubbliche ON dischiCPubbliche.ID = disco.ID
-WHERE autore.ID=id_Autore
-GROUP BY autore.ID;
+SELECT dischiAutori.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani
+FROM dischiAutori
+JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco
+LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore
+JOIN dischiCPubbliche ON dischiCPubbliche.ID = dischiAutori.ID_disco
+WHERE dischiAutori.ID_autore=id_autore
+GROUP BY dischiAutori.ID_autore;
 END$$
 
 -- 12.1 Statistiche: numero di collezioni di ciascun collezionista.
@@ -223,6 +220,12 @@ JOIN raccolta ON raccolta.ID_disco = disco.ID
 JOIN collezione ON collezione.ID = raccolta.ID_collezione
 WHERE flag=1;
 
+CREATE VIEW dischiAutori AS
+SELECT disco.ID as ID_disco, titolo_disco, composto.ID_autore, autore.nome
+FROM disco
+JOIN composto ON composto.ID_disco = disco.ID
+JOIN autore ON autore.ID = composto.ID_autore;
+
 
 
 -- CALL trova_disco(2);
@@ -230,5 +233,7 @@ WHERE flag=1;
 -- CALL verifica_visibilita(1,1);
 -- dischi in collezioni pubbliche
 call minutiPerAutore(1);
+
+
 
 
