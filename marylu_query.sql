@@ -50,6 +50,41 @@ BEGIN
 	WHERE disco.ID = id_disco;		
 END$$
 
+-- 1. Inserimento di una nuova collezione.
+CREATE PROCEDURE query1(nomec varchar(80), nicknamec integer unsigned,
+OUT ID integer unsigned)
+BEGIN
+	DECLARE id_collezionista integer unsigned;
+	SET id_collezionista = (SELECT ID FROM collezionista WHERE nickname=nicknamec);
+	INSERT INTO collezione(nome, ID_collezionista) VALUES
+    (nomec, id_collezionista);
+    SET ID=last_insert_id();
+    SET flag = 0;
+END$$
+
+-- 2. Aggiunta di dischi a una collezione e di tracce a un disco.
+
+CREATE PROCEDURE query2disco(id_collezione integer unsigned, id_disco integer unsigned , id_collezionista integer unsigned,
+OUT ID integer unsigned)
+BEGIN
+	DECLARE id_c integer unsigned;
+	SET id_c= (SELECT ID_collezionista FROM collezione WHERE ID=id_collezione);
+    IF id_c=id_collezionista THEN 
+		INSERT INTO raccolta(ID_collezione,ID_disco) VALUES
+        (id_collezione,id_disco);
+        SET ID = last_insert_id();
+	END IF;
+END$$
+
+
+CREATE PROCEDURE query2tracce(id_traccia integer unsigned, id_disco integer unsigned, durata1 integer unsigned, titolo1 varchar(100),
+OUT ID integer unsigned)
+BEGIN
+	INSERT INTO traccia(titolo,durata,ID_disco) VALUES (titolo1,SEC_TO_TIME(durata1),id_disco);
+    SET ID=last_insert_id();
+END$$
+
+
 -- 3. Modifica dello stato della collezione
 -- se la modifichiamo da privata a pubblica eliminiamo tutte le righe nella tabella condivisa corrispondenti
 -- perchè ora tutti possono vedere la collezione e non serve tenere un registro dei singoli collezionisti come nel caso privato
@@ -92,37 +127,33 @@ END$$
 CREATE PROCEDURE trova_disco (id_collezionista integer unsigned, nome_autore varchar(50), titolo_disco varchar(50))
 BEGIN
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni private di un collezionista
-SELECT disco.titolo_disco
-FROM disco
-JOIN composto ON composto.ID_disco = disco.ID
-JOIN autore ON autore.ID = composto.ID_autore
-JOIN raccolta ON raccolta.ID_disco=disco.ID
+SELECT dischiAutori.titolo_disco
+FROM dischiAutori
+JOIN raccolta ON raccolta.ID_disco=dischiAutori.ID_disco
 JOIN collezione ON collezione.ID = raccolta.ID_collezione
-WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
     AND collezione.flag = 0
     AND collezione.ID_collezionista = id_collezionista
+
 UNION
 
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni condivise con un collezionista
-SELECT disco.titolo_disco
-FROM disco
-JOIN composto ON composto.ID_disco = disco.ID
-JOIN autore ON autore.ID = composto.ID_autore
+SELECT dischiAutori.titolo_disco
+FROM dischiAutori
+JOIN raccolta ON raccolta.ID_disco=dischiAutori.ID_disco
 JOIN collezione ON collezione.ID = raccolta.ID_collezione
 JOIN condivisa ON condivisa.ID_collezione = collezione.ID
-WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
     AND condivisa.ID_collezionista = id_collezionista
 
 UNION
 
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni pubbliche
-SELECT disco.titolo_disco
-FROM disco
-JOIN composto ON composto.ID_disco = disco.ID
-JOIN autore ON autore.ID = composto.ID_autore
-JOIN raccolta ON raccolta.ID_disco = disco.ID
+SELECT dischiAutori.titolo_disco
+FROM dischiAutori
+JOIN raccolta ON raccolta.ID_disco = dischiAutori.ID_disco
 JOIN dischiCPubbliche ON dischiCPubbliche.ID = raccolta.ID_disco
-WHERE (autore.nome LIKE (CONCAT('%',nome_autore,'%')) OR disco.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')));
+WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')));
 
   END$$
   
@@ -232,7 +263,7 @@ JOIN autore ON autore.ID = composto.ID_autore;
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 -- dischi in collezioni pubbliche
-call minutiPerAutore(1);
+call trova_disco(1,'The Beatles',null);
 
 
 
