@@ -15,7 +15,7 @@ drop table if exists composto; -- X
 drop table if exists raccolta;
 
 
--- DROP USER 'collezioneAdmin'@'localhost';
+DROP USER 'collezioneAdmin'@'localhost';
 CREATE USER 'collezioneAdmin'@'localhost' IDENTIFIED BY 'randompassword';
 GRANT ALL ON progettolab.* TO 'collezioneAdmin'@'localhost';
 
@@ -91,11 +91,9 @@ create table traccia(
 
 );
 
--- per cancellare un autore non deve essere collegato a nessuna traccia e a nessun disco
 create table autore(
 	ID integer unsigned auto_increment primary key,
 	nome varchar(50),
-    cognome varchar(80) default 'Sconosciuto',
     IPI integer unsigned unique not null
 );
   

@@ -12,7 +12,6 @@ DROP PROCEDURE IF EXISTS tracklist;
 DROP PROCEDURE IF EXISTS trova_disco; -- DA RIVEDERE
 DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
-DROP PROCEDURE IF EXISTS numero_brani;
 DROP PROCEDURE IF EXISTS minuti_totali;
 DROP PROCEDURE IF EXISTS verifica_visibilita;
 
@@ -24,6 +23,9 @@ DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 DROP TRIGGER IF EXISTS eliminazione_disco;
 DROP trigger IF EXISTS eliminazione_collezione;
 DROP TRIGGER IF EXISTS cambia_stato_collezione;
+
+DROP VIEW IF EXISTS collezioniPubbliche;
+DROP VIEW IF EXISTS braniPerAutore;
 
 DELIMITER $$
 
@@ -133,18 +135,7 @@ JOIN raccolta ON raccolta.ID_collezione = c.ID
 JOIN disco ON disco.ID=raccolta.ID_disco
 WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1);
 
--- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
-CREATE PROCEDURE numero_brani (id_autore integer unsigned)
-BEGIN
-SELECT autore.nome, COUNT(DISTINCT traccia.ID) as numero_brani 
-FROM scritta 
-JOIN traccia ON scritta.ID_traccia = traccia.ID
-JOIN autore ON scritta.ID_autore = autore.ID
-JOIN raccolta ON traccia.ID_disco=raccolta.ID_disco
-JOIN collezione ON raccolta.ID_collezione = collezione.ID
-WHERE autore.ID=id_autore AND collezione.flag=1
-GROUP BY autore.nome;
-END$$
+
 
 -- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
 CREATE PROCEDURE minuti_totali(id_autore integer unsigned)
@@ -224,7 +215,31 @@ BEGIN
     END IF;
 END$$
 
+-- VISTE
+
+-- Vista per la visualizzazione delle collezioni pubbliche nel database
+CREATE VIEW collezioniPubbliche AS
+SELECT *
+FROM collezione
+WHERE flag = 1;
+
+-- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
+CREATE VIEW braniPerAutore AS
+SELECT autore.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani
+FROM autore
+JOIN composto ON composto.ID_autore = autore.ID
+JOIN disco ON disco.ID=composto.ID_disco
+JOIN traccia ON traccia.ID_disco=disco.ID
+LEFT JOIN scritta ON scritta.ID_autore=autore.ID
+JOIN raccolta ON raccolta.ID_disco=disco.ID
+JOIN collezioniPubbliche ON raccolta.ID_collezione = collezioniPubbliche.ID
+WHERE autore.ID=1
+GROUP BY autore.ID;
+
+
 
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
+
+select * from braniPerAutore

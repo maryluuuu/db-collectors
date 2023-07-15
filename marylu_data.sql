@@ -76,8 +76,8 @@ insert into `traccia`(ID, titolo, durata, ID_disco) values
 (2, 'Stop', SEC_TO_TIME(30), 1),
 (3, 'Young Lust', SEC_TO_TIME(198), 1),
 -- tracce del disco The Dark Side of the Moon
-(4, 'Eclipse', SEC_TO_TIME(121), 4),
-(5, 'Us and Them', SEC_TO_TIME(470), 4),
+(4, 'Eclipse', SEC_TO_TIME(121), 2),
+(5, 'Us and Them', SEC_TO_TIME(470), 2),
 -- tracce del disco Abbey Road
 (6, 'Come Together', SEC_TO_TIME(260), 3),
 (7, 'Here Comes The Sun', SEC_TO_TIME(185), 3),
@@ -113,7 +113,7 @@ delete from genere where ID = 1;
 
 -- Aggiunta di dischi a una collezione
 insert into `raccolta`(ID_collezione, ID_disco) values
-(2,4), (2,3),(2,5), (1,3), (1,4), (4,5), (4,1), (4,3);
+(2,4), (2,3),(2,5), (1,3), (1,4), (4,5), (4,1), (4,3),(4,2);
 
 
 -- Inserimento nella tabella composto
@@ -125,7 +125,7 @@ insert into `composto`(ID_disco, ID_autore, ruolo) values
 (5,3,'compositore ed esecutore');
 
 -- Inserimento dell'associazione tra traccia e autore
-insert into `scritta`(ID_traccia, ID_autore) values
-(1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3), (10,3);
+-- insert into `scritta`(ID_traccia, ID_autore) values
+-- (1,1), (2,1), (3,1), (4,1), (5,1), (6,2), (7,2), (8,3), (9,3), (10,3);
 
 
