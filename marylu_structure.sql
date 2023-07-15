@@ -11,7 +11,9 @@ drop table if exists traccia; -- X
 drop table if exists autore; -- X
 drop table if exists doppione; -- X
 drop table if exists immagine; -- X
+drop table if exists condivisa;
 drop table if exists composto; -- X
+drop table if exists scritta;
 drop table if exists raccolta;
 
 
@@ -195,8 +197,12 @@ create table scritta(
 
 -- Relazione disco e collezione (n..m)
 create table raccolta(
-ID_collezione integer unsigned not null,
-ID_disco integer unsigned not null,
-foreign key (ID_collezione) references collezione(ID) on delete cascade on update cascade,
-foreign key (ID_disco) references disco(ID) on delete cascade on update cascade
+	ID_collezione integer unsigned not null,
+	ID_disco integer unsigned not null,
+	primary key (ID_collezione, ID_disco),
+
+	foreign key (ID_collezione) references collezione(ID) on delete cascade on update cascade,
+		-- quando una collezione viene cancellata i dischi non sono più associati a nessuna collezione
+	foreign key (ID_disco) references disco(ID) on delete cascade on update cascade
+		-- quando elimino un disco dalla collezione elimino quel disco associato nella tabella raccolta 
 );
