@@ -62,27 +62,34 @@ BEGIN
     SET flag = 0;
 END$$
 
--- 2. Aggiunta di dischi a una collezione e di tracce a un disco.
+-- 1. Inserimento di una nuova collezione.
+CREATE PROCEDURE query1(nomec varchar(80), nicknamec varchar(80))
+BEGIN
+	DECLARE id_collezionista integer unsigned;
+	SET id_collezionista = (SELECT ID FROM collezionista WHERE nickname=nicknamec);
+    IF id_collezionista is not null then 
+		INSERT INTO collezione(ID,nome, flag, ID_collezionista) VALUES
+		(last_insert_id(),nomec, 0, id_collezionista);
+    END IF;
+END$$
 
-CREATE PROCEDURE query2disco(id_collezione integer unsigned, id_disco integer unsigned , id_collezionista integer unsigned,
-OUT ID integer unsigned)
+-- 2. Aggiunta di dischi a una collezione e di tracce a un disco.
+CREATE PROCEDURE query2disco(id_collezione integer unsigned, id_disco integer unsigned , id_collezionista integer unsigned)
 BEGIN
 	DECLARE id_c integer unsigned;
 	SET id_c= (SELECT ID_collezionista FROM collezione WHERE ID=id_collezione);
     IF id_c=id_collezionista THEN 
-		INSERT INTO raccolta(ID_collezione,ID_disco) VALUES
-        (id_collezione,id_disco);
-        SET ID = last_insert_id();
+		INSERT INTO raccolta(ID,ID_collezione,ID_disco) VALUES
+        (last_insert_id(),id_collezione,id_disco);
 	END IF;
 END$$
 
 
-CREATE PROCEDURE query2tracce(id_traccia integer unsigned, id_disco integer unsigned, durata1 integer unsigned, titolo1 varchar(100),
-OUT ID integer unsigned)
+CREATE PROCEDURE query2traccia( id_disco integer unsigned, durata1 integer unsigned, titolo1 varchar(100), isrc varchar(12))
 BEGIN
-	INSERT INTO traccia(titolo,durata,ID_disco) VALUES (titolo1,SEC_TO_TIME(durata1),id_disco);
-    SET ID=last_insert_id();
+	INSERT INTO traccia(ID,titolo,durata,ID_disco,ISRC) VALUES (last_insert_id(),titolo1,SEC_TO_TIME(durata1),id_disco,isrc);
 END$$
+
 
 
 -- 3. Modifica dello stato della collezione
