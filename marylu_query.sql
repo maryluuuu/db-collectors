@@ -26,6 +26,7 @@ DROP TRIGGER IF EXISTS cambia_stato_collezione;
 
 DROP VIEW IF EXISTS collezioniPubbliche;
 DROP VIEW IF EXISTS braniPerAutore;
+DROP VIEW IF EXISTS minutiPerAutore;
 
 DELIMITER $$
 
@@ -236,10 +237,22 @@ JOIN collezioniPubbliche ON raccolta.ID_collezione = collezioniPubbliche.ID
 WHERE autore.ID=1
 GROUP BY autore.ID;
 
+-- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
+CREATE VIEW minutiPerAutore AS
+SELECT autore.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani
+FROM autore
+JOIN composto ON composto.ID_autore = autore.ID
+JOIN disco ON disco.ID=composto.ID_disco
+JOIN traccia ON traccia.ID_disco=disco.ID
+LEFT JOIN scritta ON scritta.ID_autore=autore.ID
+JOIN raccolta ON raccolta.ID_disco=disco.ID
+JOIN collezioniPubbliche ON raccolta.ID_collezione = collezioniPubbliche.ID
+WHERE autore.ID=1
+GROUP BY autore.ID;
 
 
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 
-select * from braniPerAutore
+select * from minutiPerAutore
