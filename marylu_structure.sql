@@ -82,6 +82,8 @@ create table traccia(
 	ID integer unsigned auto_increment primary key,
     titolo varchar(100) unique not null,
     durata time not null,
+    ISRC varchar(12) unique not null,
+    -- ISRC codice a 12 caratteri alfanumeriche che identifica una traccia audio
     ID_disco integer unsigned not null,
 
     
@@ -132,10 +134,11 @@ create table immagine(
     ID_disco integer unsigned not null,
     
 	constraint immagine_disco foreign key (ID_disco)
-		references disco(ID) on delete cascade on update cascade
+		references disco(ID) on delete cascade on update cascade,
         -- posso eliminare un disco anche se ha delle immagini associate
         -- le immagini associate vengono eliminate quando vine eliminato il disco
         
+	 constraint check_tipo check (tipo in ('copertina', 'retro', 'libretto', 'facciata interna'))
 );
 
 -- Tabella condivisione collezione e collezionista (n..m)
