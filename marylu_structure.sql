@@ -82,7 +82,7 @@ create table disco(
 
 create table traccia(
 	ID integer unsigned auto_increment primary key,
-    titolo varchar(100) unique not null,
+    titolo varchar(100) not null,
     durata time not null,
     ISRC varchar(12) unique not null,
     -- ISRC codice a 12 caratteri alfanumeriche che identifica una traccia audio
