@@ -24,7 +24,7 @@ DROP TRIGGER IF EXISTS inserisci_durata_totale;
 DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 
 -- Elimina le viste esistenti
-DROP VIEW IF EXISTS collezioniPubbliche;
+DROP VIEW IF EXISTS dischiCPubbliche;
 
 DELIMITER $$
 
@@ -143,9 +143,8 @@ JOIN composto ON composto.ID_autore = autore.ID
 JOIN disco ON disco.ID=composto.ID_disco
 JOIN traccia ON traccia.ID_disco=disco.ID
 LEFT JOIN scritta ON scritta.ID_autore=autore.ID
-JOIN raccolta ON raccolta.ID_disco=disco.ID
-JOIN collezioniPubbliche ON raccolta.ID_collezione = collezioniPubbliche.ID
-WHERE autore.ID=1
+JOIN dischiCPubbliche ON dischiCPubbliche.ID=disco.ID
+WHERE autore.ID=id_autore
 GROUP BY autore.ID;
 END$$
 
@@ -158,8 +157,7 @@ JOIN composto ON composto.ID_autore = autore.ID
 JOIN disco ON disco.ID=composto.ID_disco
 JOIN traccia ON traccia.ID_disco=disco.ID
 LEFT JOIN scritta ON scritta.ID_autore=autore.ID
-JOIN raccolta ON raccolta.ID_disco=disco.ID
-JOIN collezioniPubbliche ON raccolta.ID_collezione = collezioniPubbliche.ID
+JOIN dischiCPubbliche ON dischiCPubbliche.ID = disco.ID
 WHERE autore.ID=id_Autore
 GROUP BY autore.ID;
 END$$
@@ -218,15 +216,19 @@ END$$
 -- VISTE
 
 -- Vista per la visualizzazione delle collezioni pubbliche nel database
-CREATE VIEW collezioniPubbliche AS
-SELECT *
-FROM collezione 
-WHERE flag = 1;
+CREATE VIEW dischiCPubbliche AS
+SELECT DISTINCT disco.ID ,titolo_disco
+FROM disco 
+JOIN raccolta ON raccolta.ID_disco = disco.ID
+JOIN collezione ON collezione.ID = raccolta.ID_collezione
+WHERE flag=1;
 
 
 
 -- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
-CALL minutiPerAutore(1)
+-- dischi in collezioni pubbliche
+call minutiPerAutore(1);
+
 
