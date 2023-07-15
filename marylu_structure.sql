@@ -132,10 +132,11 @@ create table immagine(
     ID_disco integer unsigned not null,
     
 	constraint immagine_disco foreign key (ID_disco)
-		references disco(ID) on delete cascade on update cascade
+		references disco(ID) on delete cascade on update cascade,
         -- posso eliminare un disco anche se ha delle immagini associate
         -- le immagini associate vengono eliminate quando vine eliminato il disco
         
+	 constraint check_tipo check (tipo in ('copertina', 'retro', 'libretto', 'facciata interna'))
 );
 
 -- Tabella condivisione collezione e collezionista (n..m)
