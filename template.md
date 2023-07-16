@@ -10,9 +10,20 @@
 **Data di consegna del progetto**: gg/mm/aaaa
 
 ## Analisi dei requisiti
+L'obiettivo del progetto "Collectors" è quello di sviluppare un database per la gestione delle collezioni di dischi dei collezionisti. Il database consente la registrazione di dati dei collezionisti, le loro collezioni di dischi, i dettagli e le tracce associate a ciascun disco. Il sistema offre una serie di funzionalità per l'inserimento, la modifica e la visualizzazione dei dati, nonché per la ricerca e l’analisi delle informazioni memorizzate. 
 
-- E' possibile riportare in questa sezione i **requisiti **copiati dal documento di specifica, oppure semplicemente riassumerne gli aspetti più importanti.
-  Vanno quindi (eventualmente) discusse tutte le scelte progettuali relative al dominio, le ambiguità e il modo in cui sono state risolte.
+**Requisiti:** 
+
+1. Registrare i dati dei collezionisti, compresi e-mail e nickname. 
+2. Registrare i dati delle collezioni, consentendo ai collezionisti di creare più collezioni, ciascuna con un nome distinto. 
+3. Registrare i dettagli dei dischi, inclusi autori, titolo, anno di uscita, etichetta, genere, stato di conservazione, formato, numero di barcode e numero di doppioni. 
+4. Registrare le tracce dei dischi, compresi titolo, durata, compositore ed esecutore. 
+5. Consentire l'associazione di immagini ai dischi, ad esempio copertina, retro, facciate interne o libretti. 
+6. Consentire ai collezionisti di condividere le proprie collezioni con nessuno, altri utenti o renderle pubbliche. 
+7. Fornire operazioni di base come l'inserimento di una nuova collezione, l'aggiunta di dischi e tracce, la modifica dello stato di pubblicazione di una collezione, la     
+   rimozione di dischi o collezioni.
+8. Supportare funzionalità avanzate come la visualizzazione dei dischi in una collezione, la visualizzazione della tracklist di un disco, la ricerca di dischi basata su 
+   autori/compositori/interpreti o titoli e fornire le statistiche sui dati. 
 
 - E' possibile infine inserire qui un glossario che riporta tutti gli oggetti di dominio individuati, con la loro semantica, i loro eventuali sinonimi e le loro proprietà.
 
