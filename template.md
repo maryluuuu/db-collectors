@@ -2,10 +2,10 @@
 
 **Gruppo di lavoro**:
 
-| Matricola | Nome | Cognome | Contributo al progetto |
-|:---------:|:----:|:-------:|:----------------------:|
-|           |      |         |                        |
-|           |      |         |                        |
+| Matricola | Nome           | Cognome | Contributo al progetto |
+|:---------:|:--------------:|:-------:|:----------------------:|
+|251926     |Maria Alberta   |Caradio  |                        |
+|           |                |         |                        |
 
 **Data di consegna del progetto**: gg/mm/aaaa
 
