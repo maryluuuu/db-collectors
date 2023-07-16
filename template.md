@@ -30,19 +30,23 @@ Elenchiamo le scelte progettuali relative al dominio della base di dati:
 1. **Identificazione delle entità e dei loro attributi**:
 Abbiamo individuato le entità chiave principali che rappresentano gli oggetti rilevanti del dominio creando le seguenti entità e attributi, questi vengono elencati con i loro attributi di dominio
 
-<u>Collezionista:</u> entità a cui sono associate le informazioni dei collezionisti
+**Collezionista:** entità a cui sono associate le informazioni dei collezionisti
 nickname: rappresenta il nome nella piattaforma associato con l'utente, è univoco quindi non possono esistere più utenti con lo stesso nickname, il dominio dell'attributo  è stringa di caratteri.
 email contiene l'indirizzo email del collezionista è univoco, il dominio dell'attributo è stringa di caratteri.
 
-<u>Collezione:</u> entità che memorizza le informazioni sulle collezioni
+**Collezione:** entità che memorizza le informazioni sulle collezioni
 nome: attributo nome dell'entità collezione contiene il nome della collezione, il dominio sono le stringhe di caratteri. Il titolo di una collezione è unico per ogni          collezionista, non possono esserci due collezioni appartenenti ad un utente con lo stesso titolo.
 flag: identifica lo stato della collezione se è pubblica o privata, il suo dominio è valori booleani, in questo modo si evita all'utente di scrivere delle stringhe e gli       eventuali errari, inoltre lo spazio occupato da un valore booleano è minore di quello che occupa una stringa di caratteri
 
-<u>Disco</u>rappresenta l'entità astratta del disco posseduto dal collezionista a cui vengono collegate le informazioni generali del disco che non dipendono dalla copia fisica posseduta dall'utente, viene collegata alle entità brano ed autore, in questo modo si evita di sovraccaricare l'entià disco con molti attributi e, nel caso in cui nel database non ci siano più copie fisiche del disco, le informazioni dell'album e le sue associazioni con le altre tabelle non vengano perse. Le informazioni sulle specifiche copie ed i relativi doppioni posseduti da un collezionista vengono salvate nell'entità doppione che è associata con disco.
+**Disco**: rappresenta l'entità astratta del disco posseduto dal collezionista a cui vengono collegate le informazioni generali del disco che non dipendono dalla copia fisica posseduta dall'utente, viene collegata alle entità brano ed autore, in questo modo si evita di sovraccaricare l'entià disco con molti attributi e, nel caso in cui nel database non ci siano più copie fisiche del disco, le informazioni dell'album e le sue associazioni con le altre tabelle non vengano perse. Le informazioni sulle specifiche copie ed i relativi doppioni posseduti da un collezionista vengono salvate nell'entità doppione che è associata con disco.
+
 Disco(titolo_disco, anno_uscita, barcode, durata_totale, etichetta, genere)
 titolo_disco: contiene il titolo del disco, il dominio dell'attributo è stringa di caratteri
 anno_uscita: memorizza l'anno di uscita del disco, il dominio dell'attributo è quindi valori temporali.
 barcode: attributo
+durata_totale
+
+**Traccia** 
 
 
 
