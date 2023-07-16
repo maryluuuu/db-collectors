@@ -25,6 +25,16 @@ L'obiettivo del progetto "Collectors" è quello di sviluppare un database per la
 - Supportare funzionalità avanzate come la visualizzazione dei dischi in una collezione, la visualizzazione della tracklist di un disco, la ricerca di dischi basata su 
    autori/compositori/interpreti o titoli e fornire le statistiche sui dati. 
 
+**Dominio**:
+Elenchiamo le scelte progettuali relative al dominio della base di dati descritta dal progetto
+1. **Identificazione delle entità e dei loro attributi**:
+Abbiamo individuato le entità chiave principali che rappresentano gli oggetti rilevanti del dominio creando le seguenti entità e attributi, questi verranno descritti con i loro attributi di dominio 
+
+Collezionista
+nickname - stringa di caratteri
+email- stringa di caratteri
+
+, "traccia", "disco" e "collezione". Si è inoltre deciso di aggiungere un'ulteriore entità al database di nome "doppione", che contiene
 - -- E' possibile infine inserire qui un glossario che riporta tutti gli oggetti di dominio individuati, con la loro semantica, i loro eventuali sinonimi e le loro proprietà.
 
 ## Progettazione concettuale
