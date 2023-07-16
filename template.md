@@ -25,6 +25,41 @@ L'obiettivo del progetto "Collectors" è quello di sviluppare un database per la
 - Supportare funzionalità avanzate come la visualizzazione dei dischi in una collezione, la visualizzazione della tracklist di un disco, la ricerca di dischi basata su 
    autori/compositori/interpreti o titoli e fornire le statistiche sui dati. 
 
+**Dominio**:
+Elenchiamo le scelte progettuali relative al dominio della base di dati:
+1. **Identificazione delle entità e dei loro attributi**:
+Abbiamo individuato le entità chiave principali che rappresentano gli oggetti rilevanti del dominio creando le seguenti entità e attributi, questi vengono elencati con i loro attributi di dominio
+
+**Collezionista:** entità a cui sono associate le informazioni dei collezionisti
+nickname: rappresenta il nome nella piattaforma associato con l'utente, è univoco quindi non possono esistere più utenti con lo stesso nickname, il dominio dell'attributo  è stringa di caratteri.
+email contiene l'indirizzo email del collezionista è univoco, il dominio dell'attributo è stringa di caratteri.
+
+**Collezione:** entità che memorizza le informazioni sulle collezioni
+nome: attributo nome dell'entità collezione contiene il nome della collezione, il dominio sono le stringhe di caratteri. Il titolo di una collezione è unico per ogni          collezionista, non possono esserci due collezioni appartenenti ad un utente con lo stesso titolo.
+flag: identifica lo stato della collezione se è pubblica o privata, il suo dominio è valori booleani, in questo modo si evita all'utente di scrivere delle stringhe e gli       eventuali errari, inoltre lo spazio occupato da un valore booleano è minore di quello che occupa una stringa di caratteri
+
+**Disco**: rappresenta l'entità astratta del disco posseduto dal collezionista a cui vengono collegate le informazioni generali del disco che non dipendono dalla copia fisica posseduta dall'utente, viene collegata alle entità brano ed autore, in questo modo si evita di sovraccaricare l'entià disco con molti attributi e, nel caso in cui nel database non ci siano più copie fisiche del disco, le informazioni dell'album e le sue associazioni con le altre tabelle non vengano perse. Le informazioni sulle specifiche copie ed i relativi doppioni posseduti da un collezionista vengono salvate nell'entità doppione che è associata con disco.
+
+titolo_disco: contiene il titolo del disco, il dominio dell'attributo è stringa di caratteri
+anno_uscita: memorizza l'anno di uscita del disco, il dominio dell'attributo è quindi valori temporali.
+barcode: memorizza il barcode univoco associato a disco, può essere nullo, il dominio dell'attributo è stringa di caratteri
+durata_totale: attributo calcolato come somma della durata delle singole tracce associate al disco, il dominio dell'attributo è valore temporale
+
+**Traccia** entità che memorizza le informazioni sulle tracce
+titolo: contiene il titolo della traccia, il dominio dell'attributo è stringa di caratteri
+durata: contiene la durata della traccia
+ISRC: contiene la stringa alfanumerica di 12 caratteri che identifica il codice internazionale delle singole opere musicali, il dominio è stringa di caratteri
+
+**Doppione** entità che memorizza le informazioni associate alle copie fisiche dei dischi posessduti dai collezionisti e contiene
+quantità
+formato
+condizione
+disco_associato
+collezionista associato
+
+
+
+, "traccia", "disco" e "collezione". Si è inoltre deciso di aggiungere un'ulteriore entità al database di nome "doppione", che contiene
 - -- E' possibile infine inserire qui un glossario che riporta tutti gli oggetti di dominio individuati, con la loro semantica, i loro eventuali sinonimi e le loro proprietà.
 
 ## Progettazione concettuale
