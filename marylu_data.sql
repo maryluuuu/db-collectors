@@ -70,21 +70,21 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 (5, 'Pet Sounds', 1966, 0000000018, 4, 5);
 
 -- Aggiunta di tracce a un disco.
-insert into `traccia`(ID, titolo, durata, ID_disco) values
+insert into `traccia`(ID, ISRC, titolo, durata, ID_disco) values
 -- tracce del disco The Wall
-(1, 'Mother', SEC_TO_TIME(322), 1),
-(2, 'Stop', SEC_TO_TIME(30), 1),
-(3, 'Young Lust', SEC_TO_TIME(198), 1),
+(1, 'EN1B3032676', 'Mother', SEC_TO_TIME(322), 1),
+(2, 'EN1B3032677', 'Stop', SEC_TO_TIME(30), 1),
+(3, 'EN1B3032678', 'Young Lust', SEC_TO_TIME(198), 1),
 -- tracce del disco The Dark Side of the Moon
-(4, 'Eclipse', SEC_TO_TIME(121), 2),
-(5, 'Us and Them', SEC_TO_TIME(470), 2),
+(4, 'EN3CF000276', 'Eclipse', SEC_TO_TIME(121), 2),
+(5, 'EN3CF000277', 'Us and Them', SEC_TO_TIME(470), 2),
 -- tracce del disco Abbey Road
-(6, 'Come Together', SEC_TO_TIME(260), 3),
-(7, 'Here Comes The Sun', SEC_TO_TIME(185), 3),
+(6, 'EN0KL7056885', 'Come Together', SEC_TO_TIME(260), 3),
+(7, 'EN0KL7056886', 'Here Comes The Sun', SEC_TO_TIME(185), 3),
 -- tracce del disco Pet Sound
-(8, "Wouldn't It Be Nice", SEC_TO_TIME(142), 5),
-(9, "God Only Knows", SEC_TO_TIME(169),5),
-(10, "Caroline, No", SEC_TO_TIME(172),5);
+(8, 'EN7AA099F88', "Wouldn't It Be Nice", SEC_TO_TIME(142), 5),
+(9, 'EN77A099F89', 'God Only Knows', SEC_TO_TIME(169),5),
+(10, 'EN7AA099F90', 'Caroline, No', SEC_TO_TIME(172),5);
 
 
 insert into `autore` (ID, nome, IPI) values
