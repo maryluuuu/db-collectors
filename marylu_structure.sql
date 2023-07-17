@@ -104,7 +104,7 @@ create table autore(
 
 create table doppione(
 	ID integer unsigned auto_increment primary key,
-    quantita integer unsigned default 1,
+    quantita smallint unsigned default 1,
     formato varchar(20) not null,
     condizione varchar(20) not null,
     ID_disco integer unsigned not null,

@@ -53,6 +53,19 @@ BEGIN
 	WHERE disco.ID = id_disco;		
 END$$
 
+-- Inserimento di un disco
+CREATE PROCEDURE query0(nomed varchar(100), annod year, barcoded bigint(13),
+idet integer unsigned, idge integer unsigned,formatod varchar(20),condizioned varchar(20), 
+quantitad smallint unsigned, id_coll integer unsigned)
+BEGIN
+DECLARE var integer unsigned;
+SET var = last_insert_id();
+INSERT INTO disco(ID, titolo_disco,anno_uscita,barcode,ID_etichetta,ID_genere) VALUES
+(var,nomed, annod, barcoded, idet, idge);
+INSERT INTO doppione (quantita, formato, condizione, ID_disco, ID_collezionista) VALUES 
+(quantitad, formatod, condizioned, var, id_coll);
+END$$
+
 -- 1. Inserimento di una nuova collezione.
 CREATE PROCEDURE query1(nomec varchar(80), nicknamec varchar(80))
 BEGIN
@@ -69,7 +82,7 @@ CREATE PROCEDURE query2disco(id_collezione integer unsigned, id_disco integer un
 BEGIN
 	DECLARE id_c integer unsigned;
 	SET id_c= (SELECT ID_collezionista FROM collezione WHERE ID=id_collezione);
-    IF id_c=id_collezionista THEN 
+    IF (id_c is not null) AND (id_c=id_collezionista) THEN 
 		INSERT INTO raccolta(ID,ID_collezione,ID_disco) VALUES
         (last_insert_id(),id_collezione,id_disco);
 	END IF;
