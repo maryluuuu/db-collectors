@@ -3,6 +3,9 @@ use progettolab;
 -- Elimina le procedure esistenti
 DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
+DROP PROCEDURE IF EXISTS query1;
+DROP PROCEDURE IF EXISTS query2disco;
+DROP PROCEDURE IF EXISTS query2traccia;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
 DROP PROCEDURE IF EXISTS cancellazione_collezione;
 DROP PROCEDURE IF EXISTS elimina_disco;
