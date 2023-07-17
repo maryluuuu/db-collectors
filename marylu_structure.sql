@@ -84,7 +84,7 @@ create table traccia(
 	ID integer unsigned auto_increment primary key,
     titolo varchar(100) not null,
     durata time not null,
-    ISRC varchar(12) unique,
+    ISRC varchar(12) unique not null,
     -- ISRC codice a 12 caratteri alfanumeriche che identifica una traccia audio
     ID_disco integer unsigned not null,
 
