@@ -51,25 +51,13 @@ BEGIN
 END$$
 
 -- 1. Inserimento di una nuova collezione.
-CREATE PROCEDURE query1(nomec varchar(80), nicknamec integer unsigned,
-OUT ID integer unsigned)
-BEGIN
-	DECLARE id_collezionista integer unsigned;
-	SET id_collezionista = (SELECT ID FROM collezionista WHERE nickname=nicknamec);
-	INSERT INTO collezione(nome, ID_collezionista) VALUES
-    (nomec, id_collezionista);
-    SET ID=last_insert_id();
-    SET flag = 0;
-END$$
-
--- 1. Inserimento di una nuova collezione.
 CREATE PROCEDURE query1(nomec varchar(80), nicknamec varchar(80))
 BEGIN
 	DECLARE id_collezionista integer unsigned;
 	SET id_collezionista = (SELECT ID FROM collezionista WHERE nickname=nicknamec);
     IF id_collezionista is not null then 
-		INSERT INTO collezione(ID,nome, flag, ID_collezionista) VALUES
-		(last_insert_id(),nomec, 0, id_collezionista);
+		INSERT INTO collezione(ID,nome,ID_collezionista) VALUES
+		(last_insert_id(), nomec, id_collezionista);
     END IF;
 END$$
 
@@ -256,7 +244,7 @@ SELECT DISTINCT disco.ID ,titolo_disco
 FROM disco 
 JOIN raccolta ON raccolta.ID_disco = disco.ID
 JOIN collezione ON collezione.ID = raccolta.ID_collezione
-WHERE flag=1;
+WHERE collezione.flag=1;
 
 CREATE VIEW dischiAutori AS
 SELECT disco.ID as ID_disco, titolo_disco, composto.ID_autore, autore.nome
