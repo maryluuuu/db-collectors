@@ -1,9 +1,10 @@
 use progettolab;
 
+DROP FUNCTION IF EXISTS query1;
 -- Elimina le procedure esistenti
 DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
-DROP PROCEDURE IF EXISTS query1;
+DROP PROCEDURE IF EXISTS query0;
 DROP PROCEDURE IF EXISTS query2disco;
 DROP PROCEDURE IF EXISTS query2traccia;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
@@ -58,23 +59,24 @@ CREATE PROCEDURE query0(nomed varchar(100), annod year, barcoded bigint(13),
 idet integer unsigned, idge integer unsigned,formatod varchar(20),condizioned varchar(20), 
 quantitad smallint unsigned, id_coll integer unsigned)
 BEGIN
-DECLARE var integer unsigned;
-SET var = last_insert_id();
 INSERT INTO disco(ID, titolo_disco,anno_uscita,barcode,ID_etichetta,ID_genere) VALUES
 (var,nomed, annod, barcoded, idet, idge);
 INSERT INTO doppione (quantita, formato, condizione, ID_disco, ID_collezionista) VALUES 
-(quantitad, formatod, condizioned, var, id_coll);
+(quantitad, formatod, condizioned, last_insert_id(), id_coll);
+SELECT last_insert_id();
 END$$
 
 -- 1. Inserimento di una nuova collezione.
-CREATE PROCEDURE query1(nomec varchar(80), nicknamec varchar(80))
+CREATE FUNCTION query1(nomec varchar(80), nicknamec varchar(80)) RETURNS integer unsigned
+READS SQL DATA
 BEGIN
 	DECLARE id_collezionista integer unsigned;
-	SET id_collezionista = (SELECT ID FROM collezionista WHERE nickname=nicknamec);
-    IF id_collezionista is not null then 
-		INSERT INTO collezione(ID,nome,ID_collezionista) VALUES
-		(last_insert_id(), nomec, id_collezionista);
-    END IF;
+	SELECT ID INTO id_collezionista FROM collezionista WHERE nickname=nicknamec;
+    IF id_collezionista is null then 
+     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste';
+	END IF;
+    INSERT INTO collezione(nome,ID_collezionista) VALUES (nomec, id_collezionista);
+	RETURN last_insert_id();
 END$$
 
 -- 2. Aggiunta di dischi a una collezione e di tracce a un disco.
@@ -89,39 +91,25 @@ id_collezionista integer unsigned
 BEGIN
   DECLARE id_collezione INT;
   DECLARE id_disco INT;
-  
   -- Verifica se la collezione esiste
-  SELECT ID INTO id_collezione
-  FROM collezioni
-  WHERE nome = nome_collezione AND ID_collezionista=id_collezionista;
-  
+  SELECT ID INTO id_collezione FROM collezione
+  WHERE nome = nomecollezione AND collezione.ID_collezionista=id_collezionista;
   -- Verifica se il disco esiste
-  SELECT ID INTO id_disco
-  FROM disco
+  SELECT ID INTO id_disco FROM disco
   WHERE titolo_disco = nomed and anno_uscita=annod;
-  
-  -- Se la collezione o il disco non esistono, esci dalla procedura
-  IF id_collezione IS NULL OR id_disco IS NULL THEN
+  -- Se la collezione non esiste, esci dalla procedura
+  IF id_collezione IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste';
   END IF;
   -- Se il disco non esiste, crea il disco
-  IF id_disco IS NULL THEN
-  SET id_disco=last_insert_id();
-  INSERT INTO disco(ID,titolo_disco, anno_uscita, barcode) VALUES
-  (id_disco,nomed,annod,barcoded);
-  END IF;
-  
+IF id_disco IS NULL THEN
+  INSERT INTO disco(titolo_disco, anno_uscita, barcode) VALUES
+  (nomed,annod,barcoded);
+SET id_disco=last_insert_id();
+END IF;
   -- Verifica se l'associazione esiste già nella tabella collezioni_disco
-  IF EXISTS (
-    SELECT 1
-    FROM raccolta
-    WHERE ID_collezione = id_collezione AND ID_disco = id_disco
-  ) THEN
-    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco è già presente nella collezione';
-  END IF;
-  
-  -- Inserisci l'associazione nella tabella collezioni_disco
-  INSERT INTO collezioni_disco (ID_collezione, ID_disco)
+  -- Inserisci l'associazione nella tabella raccolta
+  INSERT INTO raccolta (ID_collezione, ID_disco)
   VALUES (id_collezione, id_disco);
 END$$
 
@@ -134,7 +122,6 @@ isrc varchar(12))
 BEGIN
   DECLARE id_traccia INT;
   DECLARE id_disco INT;
-  
   -- Verifica se il disco esiste
   SELECT ID INTO id_disco
   FROM disco
@@ -148,9 +135,8 @@ BEGIN
   WHERE isrc=ISRC;
   -- Se la traccia non esiste viene inserita
   IF id_traccia IS NULL THEN 
-	SET id_traccia=last_insert_id();
-	INSERT INTO traccia(ID,titolo,durata,ISRC,ID_disco) VALUES 
-	(id_traccia,titolod,duratad,isrc,id_disco);
+	INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES 
+	(titolod,duratad,isrc,id_disco);
 END IF;
 END$$
 
@@ -217,9 +203,7 @@ JOIN collezione ON collezione.ID = raccolta.ID_collezione
 WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
     AND collezione.flag = 0
     AND collezione.ID_collezionista = id_collezionista
-
 UNION
-
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni condivise con un collezionista
 SELECT dischiAutori.titolo_disco
 FROM dischiAutori
@@ -228,31 +212,29 @@ JOIN collezione ON collezione.ID = raccolta.ID_collezione
 JOIN condivisa ON condivisa.ID_collezione = collezione.ID
 WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
     AND condivisa.ID_collezionista = id_collezionista
-
 UNION
-
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni pubbliche
 SELECT dischiAutori.titolo_disco
 FROM dischiAutori
 JOIN raccolta ON raccolta.ID_disco = dischiAutori.ID_disco
 JOIN dischiCPubbliche ON dischiCPubbliche.ID = raccolta.ID_disco
 WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')));
-
   END$$
   
 -- 9. Verifica della visibilità di una collezione da parte di un collezionista.
 CREATE PROCEDURE verifica_visibilita (id_collezionista integer unsigned, id_collezione integer unsigned)
-SELECT disco.*
+BEGIN
+SELECT disco.titolo_disco
 FROM collezione c 
 JOIN condivisa ON c.ID = condivisa.ID_collezione
 JOIN raccolta ON raccolta.ID_collezione = c.ID
 JOIN disco ON disco.ID=raccolta.ID_disco
 WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1);
+END$$
 
 -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
 CREATE PROCEDURE braniPerAutore(id_autore integer unsigned)
 BEGIN
-DECLARE 
 SELECT dischiAutori.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani
 FROM dischiAutori 
 JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco
@@ -343,12 +325,11 @@ JOIN autore ON autore.ID = composto.ID_autore;
 
 
 
--- CALL trova_disco(2);
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 -- dischi in collezioni pubbliche
-call trova_disco(1,'The Beatles',null);
 
 
-
-
+SELECT query1('lo-fi','alice');
+call query2disco('lo-fi','Pet Sounds', 1966,null,1);
+select distinct disco.titolo_disco from disco JOIN raccolta on disco.ID=raccolta.ID_disco where raccolta.ID_collezione=5;

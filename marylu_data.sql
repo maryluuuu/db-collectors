@@ -113,7 +113,7 @@ delete from genere where ID = 1;
 
 -- Aggiunta di dischi a una collezione
 insert into `raccolta`(ID_collezione, ID_disco) values
-(2,4), (2,3),(2,5), (1,3), (1,4), (4,5), (4,1), (4,3), (4,2);
+(2,4), (2,3),(2,5), (1,3), (1,4), (4,1), (4,3), (4,2);
 
 
 -- Inserimento nella tabella composto
