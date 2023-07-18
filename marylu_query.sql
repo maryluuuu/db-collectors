@@ -151,16 +151,18 @@ END$$
 -- 3. Modifica dello stato della collezione
 -- se la modifichiamo da privata a pubblica eliminiamo tutte le righe nella tabella condivisa corrispondenti
 -- perchè ora tutti possono vedere la collezione e non serve tenere un registro dei singoli collezionisti come nel caso privato
-CREATE PROCEDURE modifica_stato_collezione (id_collezione integer unsigned)
+CREATE PROCEDURE modifica_stato_collezione (nomec varchar(80),id_collezionista integer unsigned)
 BEGIN
+DECLARE idc integer unsigned;
+SELECT ID INTO idc FROM collezione WHERE nome=nomec AND collezione.ID_collezionista=id_collezionista;
 UPDATE collezione
 SET flag = CASE
     WHEN flag = 0 THEN 1
     WHEN flag = 1 THEN 0
 END
-WHERE ID=id_collezione;
-IF (SELECT flag FROM collezione WHERE ID=id_collezione) = 1 THEN
-	DELETE  FROM condivisa WHERE ID_collezione = id_collezione;
+WHERE ID=idc;
+IF (SELECT flag FROM collezione WHERE ID=idc) = 1 THEN
+	DELETE  FROM condivisa WHERE ID_collezione = idc;
     END IF;
 END$$
 
@@ -265,14 +267,16 @@ GROUP BY dischiAutori.ID_autore;
 END$$
 
 -- 11. Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche
-CREATE PROCEDURE minutiPerAutore(id_autore integer unsigned)
+CREATE PROCEDURE minutiPerAutore(nomea varchar(60), ipi integer unsigned)
 BEGIN
+DECLARE ida integer unsigned;
+SELECT ID INTO ida FROM autore WHERE autore.IPI=ipi;
 SELECT dischiAutori.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani
 FROM dischiAutori
 JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco
 LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore
 JOIN dischiCPubbliche ON dischiCPubbliche.ID = dischiAutori.ID_disco
-WHERE dischiAutori.ID_autore=id_autore
+WHERE dischiAutori.ID_autore=ida
 GROUP BY dischiAutori.ID_autore;
 END$$
 
@@ -349,4 +353,3 @@ JOIN autore ON autore.ID = composto.ID_autore;
 -- dischi in collezioni pubbliche
 -- select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
 -- select * from traccia ;
-call braniPerAutore('The Beach Boys',0000003897);
