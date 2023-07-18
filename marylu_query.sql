@@ -131,16 +131,14 @@ BEGIN
   DECLARE id_disco INT;
   -- Verifica se il disco esiste
   SELECT disco.ID INTO id_disco
-  FROM disco WHERE titolo_disco=nomed AND anno_uscita=annod
-  LIMIT 1;
+  FROM disco WHERE titolo_disco=nomed AND anno_uscita=annod;
   IF id_disco IS NULL THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste';
   END IF;
   -- Verifica se la traccia esiste
   SELECT traccia.ID INTO id_traccia
   FROM traccia
-  WHERE isrc=ISRC
-  LIMIT 1;
+  WHERE traccia.titolo=nomet AND traccia.ID_disco=id_disco;
   -- Se la traccia non esiste viene inserita
   IF id_traccia IS NULL THEN 
 	INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES 
@@ -253,14 +251,16 @@ WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivi
 END$$
 
 -- 10. Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche.
-CREATE PROCEDURE braniPerAutore(id_autore integer unsigned)
+CREATE PROCEDURE braniPerAutore(nomea varchar(50),ipi integer unsigned )
 BEGIN
+DECLARE ida integer unsigned;
+SELECT autore.ID INTO ida FROM autore WHERE IPI=ipi LIMIT 1;
 SELECT dischiAutori.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani
 FROM dischiAutori 
 JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco
 LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore
 JOIN dischiCPubbliche ON dischiCPubbliche.ID=dischiAutori.ID_disco
-WHERE dischiAutori.ID_autore=id_autore
+WHERE dischiAutori.ID_autore=ida
 GROUP BY dischiAutori.ID_autore;
 END$$
 
@@ -347,5 +347,6 @@ JOIN autore ON autore.ID = composto.ID_autore;
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 -- dischi in collezioni pubbliche
-select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
-select * from traccia ;
+-- select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
+-- select * from traccia ;
+call braniPerAutore('The Beach Boys',0000003897);
