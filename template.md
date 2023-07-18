@@ -8,13 +8,13 @@
 
 | Matricola | Nome           | Cognome | Contributo al progetto | 
 
-| :------------ | :------------: | :------------: | ------------: | 
+| : ------------- | : ----------: | : ----------: | -----------: |
 
-|251926     |Maria Alberta|Caradio      |                                         | 
+| 251926 | Maria Alberta | Caradio |                                         | 
 
-|278438     |Federico         | Leopardi    | 	                           | 
+| 278438 | Federico | Leopardi | 	                           | 
 
-|278566     |Filippo             |Rastelli       |                        	             | 
+| 278566 | Filippo | Rastelli |                        	             | 
 
   
 
