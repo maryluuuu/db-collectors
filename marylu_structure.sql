@@ -65,7 +65,6 @@ create table disco(
     durata_totale time default 0, -- default null importante, così posso creare un disco anche se non ho ancora tracce associate
     ID_etichetta smallint unsigned,
     ID_genere smallint unsigned,
-	unique (titolo_disco,anno_uscita),
 			
 	constraint disco_etichetta foreign key (ID_etichetta)
 		references etichetta(ID) on delete set null on update cascade,

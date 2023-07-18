@@ -6,7 +6,6 @@ DROP FUNCTION IF EXISTS query2traccia;
 -- Elimina le procedure esistenti
 DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
-DROP PROCEDURE IF EXISTS query0;
 DROP PROCEDURE IF EXISTS query2disco;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
 DROP PROCEDURE IF EXISTS cancellazione_collezione;
@@ -55,18 +54,6 @@ BEGIN
 	WHERE disco.ID = id_disco;		
 END$$
 
--- Inserimento di un disco
-CREATE PROCEDURE query0(nomed varchar(100), annod year, barcoded bigint(13),
-idet integer unsigned, idge integer unsigned,formatod varchar(20),condizioned varchar(20), 
-quantitad smallint unsigned, id_coll integer unsigned)
-BEGIN
-INSERT INTO disco(ID, titolo_disco,anno_uscita,barcode,ID_etichetta,ID_genere) VALUES
-(var,nomed, annod, barcoded, idet, idge);
-INSERT INTO doppione (quantita, formato, condizione, ID_disco, ID_collezionista) VALUES 
-(quantitad, formatod, condizioned, last_insert_id(), id_coll);
-SELECT last_insert_id();
-END$$
-
 -- 1. Inserimento di una nuova collezione.
 CREATE FUNCTION query1(nomec varchar(80), nicknamec varchar(80)) RETURNS integer unsigned
 READS SQL DATA
@@ -90,31 +77,46 @@ barcoded bigint(13),
 id_collezionista integer unsigned,
 formatod varchar(20),
 condizioned varchar(20),
-quantitad smallint unsigned
+quantitad smallint unsigned,
+nomea varchar(50),
+ipi integer unsigned
 )
 BEGIN
-  DECLARE id_collezione INT;
-  DECLARE id_disco INT;
+  DECLARE id_collezione INTEGER UNSIGNED;
+  DECLARE id_disco INTEGER UNSIGNED;
+  DECLARE id_autore INTEGER UNSIGNED;
+  DECLARE id_doppione INTEGER UNSIGNED;
   -- Verifica se la collezione esiste
-  SELECT ID INTO id_collezione FROM collezione
+  SELECT collezione.ID INTO id_collezione FROM collezione
   WHERE nome = nomecollezione AND collezione.ID_collezionista=id_collezionista;
   -- Verifica se il disco esiste
-  SELECT ID INTO id_disco FROM disco
-  WHERE titolo_disco = nomed and anno_uscita=annod;
+  SELECT ID_disco INTO id_disco FROM dischiAutori
+  WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi;
   -- Se la collezione non esiste, esci dalla procedura
   IF id_collezione IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste';
   END IF;
-  -- Se il disco non esiste, crea il disco
+  -- Se il disco non esiste, crea il disco e lo associa a un autore
 IF id_disco IS NULL THEN
   INSERT INTO disco(titolo_disco, anno_uscita, barcode) VALUES
   (nomed,annod,barcoded);
 SET id_disco=last_insert_id();
+INSERT INTO autore(nome,IPI) VALUES (nomea,ipi);
+SET id_autore=last_insert_id();
+INSERT INTO composto(ID_disco,ID_autore) VALUES (id_disco,id_autore);
 END IF;
   -- Verifica se l'associazione esiste già nella tabella collezioni_disco
   -- Inserisci l'associazione nella tabella raccolta
   INSERT INTO raccolta (ID_collezione, ID_disco)
   VALUES (id_collezione, id_disco);
+  
+  SELECT ID INTO id_doppione FROM doppione WHERE doppione.formato=formatod AND doppione.condizione=condizioned 
+  AND doppione.ID_disco=id_disco;
+  IF id_doppione is not null THEN
+  UPDATE doppione
+  SET doppione.quantita=doppione.quantita+quantitad;
+  END IF;
+  
   INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista)
   VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista);
 END$$
@@ -342,7 +344,7 @@ JOIN collezione ON collezione.ID = raccolta.ID_collezione
 WHERE collezione.flag=1;
 
 CREATE VIEW dischiAutori AS
-SELECT disco.ID as ID_disco, titolo_disco, composto.ID_autore, autore.nome
+SELECT disco.ID as ID_disco, titolo_disco, composto.ID_autore, autore.nome, autore.IPI
 FROM disco
 JOIN composto ON composto.ID_disco = disco.ID
 JOIN autore ON autore.ID = composto.ID_autore;
@@ -353,3 +355,18 @@ JOIN autore ON autore.ID = composto.ID_autore;
 -- dischi in collezioni pubbliche
 -- select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
 -- select * from traccia ;
+call query2disco(
+'I miei preferiti',
+'fallen', 
+2002, 
+null,
+1,
+'digitale',
+'nessuna',
+1,
+'evanescence',
+000003498
+);
+select * from autore;
+select * from doppione;
+select * from disco;
