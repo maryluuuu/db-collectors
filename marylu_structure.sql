@@ -114,7 +114,7 @@ create table doppione(
 		-- il disco può essere solo di questi formati
     
     constraint check_condizione check (condizione in ('perfetta', 'eccellente',
-		'molto buona', 'buona', 'brutta', 'pessima' )),
+		'molto buona', 'buona', 'brutta', 'pessima','nessuna' )),
 			-- il disco può essere solo di queste condizioni
     
     constraint doppione_disco foreign key (ID_disco)

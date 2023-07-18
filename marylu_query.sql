@@ -1,12 +1,13 @@
 use progettolab;
-
+-- Elimina le funzioni esistenti
 DROP FUNCTION IF EXISTS query1;
+DROP FUNCTION IF EXISTS query2traccia;
+
 -- Elimina le procedure esistenti
 DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
 DROP PROCEDURE IF EXISTS query0;
 DROP PROCEDURE IF EXISTS query2disco;
-DROP PROCEDURE IF EXISTS query2traccia;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
 DROP PROCEDURE IF EXISTS cancellazione_collezione;
 DROP PROCEDURE IF EXISTS elimina_disco;
@@ -86,7 +87,10 @@ nomecollezione varchar(80),
 nomed VARCHAR(100), 
 annod year, 
 barcoded bigint(13),
-id_collezionista integer unsigned
+id_collezionista integer unsigned,
+formatod varchar(20),
+condizioned varchar(20),
+quantitad smallint unsigned
 )
 BEGIN
   DECLARE id_collezione INT;
@@ -111,33 +115,39 @@ END IF;
   -- Inserisci l'associazione nella tabella raccolta
   INSERT INTO raccolta (ID_collezione, ID_disco)
   VALUES (id_collezione, id_disco);
+  INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista)
+  VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista);
 END$$
 
-CREATE PROCEDURE query2traccia( 
+CREATE FUNCTION query2traccia( 
 nomed varchar(100), 
 annod smallint unsigned,
-duratat time,
+duratat smallint unsigned,
 nomet varchar(100), 
-isrc varchar(12))
+isrc varchar(12)) RETURNS integer unsigned
+READS SQL DATA
 BEGIN
   DECLARE id_traccia INT;
   DECLARE id_disco INT;
   -- Verifica se il disco esiste
-  SELECT ID INTO id_disco
-  FROM disco
-  WHERE nomed = titolo_disco AND annod=anno_uscita;
+  SELECT disco.ID INTO id_disco
+  FROM disco WHERE titolo_disco=nomed AND anno_uscita=annod
+  LIMIT 1;
   IF id_disco IS NULL THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste';
   END IF;
   -- Verifica se la traccia esiste
-  SELECT ID INTO id_traccia
+  SELECT traccia.ID INTO id_traccia
   FROM traccia
-  WHERE isrc=ISRC;
+  WHERE isrc=ISRC
+  LIMIT 1;
   -- Se la traccia non esiste viene inserita
   IF id_traccia IS NULL THEN 
 	INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES 
-	(titolod,duratad,isrc,id_disco);
+	(nomet,SEC_TO_TIME(duratat),isrc,id_disco);
+    SET id_traccia=last_insert_id();
 END IF;
+RETURN id_traccia;
 END$$
 
 -- 3. Modifica dello stato della collezione
@@ -157,11 +167,21 @@ IF (SELECT flag FROM collezione WHERE ID=id_collezione) = 1 THEN
 END$$
 
 -- 4. Procedura per la rimozione di un disco da una collezione
-CREATE PROCEDURE eliminazione_da_collezione(id_disco integer unsigned, id_collezione integer unsigned)
+CREATE PROCEDURE eliminazione_da_collezione(
+nomed varchar(100),
+annod year, 
+id_collezione integer unsigned, 
+id_collezionista integer unsigned)
 BEGIN
-    DELETE FROM raccolta 
-    WHERE ID_disco = id_disco and ID_collezione = id_collezione;
-    
+DECLARE id1 integer unsigned;
+DECLARE idd integer unsigned;
+SELECT ID_collezionista INTO id1 FROM collezione WHERE ID=id_collezione;
+IF id1!=id_collezionista THEN
+	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Non hai i permessi per modificare la collezione';
+END IF;
+SELECT ID INTO idd FROM disco WHERE disco.titolo_disco=nomed AND anno_uscita=annod;
+DELETE FROM raccolta 
+WHERE ID_disco = idd and ID_collezione = id_collezione;
 END$$
 
 -- 6. Lista di tutti i dischi in una collezione
@@ -324,12 +344,8 @@ JOIN composto ON composto.ID_disco = disco.ID
 JOIN autore ON autore.ID = composto.ID_autore;
 
 
-
 -- CALL minuti_totali('Pink Floyd');
 -- CALL verifica_visibilita(1,1);
 -- dischi in collezioni pubbliche
-
-
-SELECT query1('lo-fi','alice');
-call query2disco('lo-fi','Pet Sounds', 1966,null,1);
-select distinct disco.titolo_disco from disco JOIN raccolta on disco.ID=raccolta.ID_disco where raccolta.ID_collezione=5;
+select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
+select * from traccia ;
