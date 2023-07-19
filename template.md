@@ -78,7 +78,7 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 
 ## Progettazione concettuale 
 
-![diagramma e-r](./diagramma e-r base.jpg)
+![diagramma e-r](diagramma e-r base.jpg)
 
 
   
