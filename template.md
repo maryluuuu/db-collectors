@@ -77,6 +77,9 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 -Composto: relazione di cardinalità molti a molti tra Disco e Autore che permette l’associazione di più autori ad un disco con i loro ruoli(compositore ed esecutore). Un disco può avere più autori deve averne almeno uno per essere identificabile e un autore può comporre più dischi. Viene create una tabella per la relazione di nome “composto” che associa le entità Disco e Autore e permette di associare i diversi autori ai dischi univocamente tramite i loro rispettivi identificatori. Un disco non può esistere senza essere associato ad un autore, l’autore può non avere associati dischi. 
 
 ## Progettazione concettuale 
+
+
+
   
 - Assumiamo che il genere e l’etichetta di un disco siano unici, che non possano esistere due dischi usciti nello stesso anno con lo stesso nome.  
 - Possono esistere due autori con lo stesso nome ma con IPI diverso (Interested Party Information, codice univoco assegnato agli autori musicali. 
@@ -88,8 +91,8 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
  
 
 ### Formalizzazione dei vincoli non esprimibili nel modello ER   
-- Elencate gli altri **vincoli** sui dati che avete individuato e che non possono essere espressi nel diagramma ER. 
-
+L'attributo "anno_uscita" dell'entità "disco" deve essere un valore reale compreso nell'intervallo tra gli anni 1900 e l'anno corrente.
+L'attributo "durata_totale" dell'entità "disco" è un attributo calcolato ottenuto sommando il valore dell'attributo "durata" di tutte le entità "traccia" associate al disco.
   
 
 ## Progettazione logica 
