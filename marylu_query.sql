@@ -13,7 +13,7 @@ DROP PROCEDURE IF EXISTS elimina_disco;
 DROP PROCEDURE IF EXISTS lista_dischi;
 DROP PROCEDURE IF EXISTS modifica_stato_collezione;
 DROP PROCEDURE IF EXISTS tracklist;
-DROP PROCEDURE IF EXISTS trova_disco; -- DA RIVEDERE
+DROP PROCEDURE IF EXISTS trova_disco; 
 DROP PROCEDURE IF EXISTS braniPerAutore;
 DROP PROCEDURE IF EXISTS minutiPerAutore;
 DROP PROCEDURE IF EXISTS statistiche1;
@@ -366,7 +366,7 @@ JOIN composto ON disco.ID = composto.ID_disco
 JOIN autore ON composto.ID_autore = autore.ID
 WHERE (disco.barcode = numbarcode
        OR disco.titolo_disco LIKE CONCAT('%',titoloD,'%')
-       OR autore.nome LIKE CONCAT('%',nome_autore,'%')
+       OR autore.nome LIKE CONCAT('%',nome_autore,'%'))
 ORDER BY punteggio DESC
 LIMIT 10;
 END$$
@@ -426,19 +426,4 @@ JOIN composto ON composto.ID_disco = disco.ID
 JOIN autore ON autore.ID = composto.ID_autore;
 
 
--- TESTED:
--- query2d ok !aggiungere ruolo!
--- query2t ok !aggiungere ruolo!
--- modifica_stato_collezione ok
--- eliminazione_da_collezione ok
--- query5 ok
--- lista_dischi ok
--- tracklist ok
--- verifica_visibilita ok;
--- minutiPerAutore ok;
--- braniPerAutore ok;
--- statistiche ok;
-
 SELECT * FROM doppione;
-  
-
