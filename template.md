@@ -86,12 +86,19 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 -Autore è definita come entità padre nella generalizzazione parziale con le entità figlie Compositore e Autore. In una generalizzazione parziale, ogni istanza dell'entità padre ("Autore") può appartenere solo a una delle entità figlie ("Compositore" o "Esecutore"), ma non ad entrambe contemporaneamente. 
 - Disco rappresenta l'entità astratta del disco posseduto dal collezionista a cui vengono collegate le informazioni generali del disco che non dipendono dalla copia fisica posseduta dall'utente, viene collegata alle entità traccia ed autore, in questo modo si evita di sovraccaricare l'entità disco con molti attributi e, nel caso in cui nel database non ci siano più copie fisiche del disco, le informazioni dell'album e le sue associazioni con le altre tabelle non vengano perse. Un disco viene associato a un solo genere. Disco può essere univocamente identificato dal titolo del disco e dall’autore/autori a lui collegati. L’attributo “durata_totale” viene calcolato automaticamente come somma delle tracce associate al disco. 
  
+
 ### Formalizzazione dei vincoli non esprimibili nel modello ER   
 - Elencate gli altri **vincoli** sui dati che avete individuato e che non possono essere espressi nel diagramma ER. 
 
-## Progettazione logica   
+  
+
+## Progettazione logica 
+
+  
 
 ### Ristrutturazione ed ottimizzazione del modello ER 
+
+  
 
 - Riportate qui il modello **ER ristrutturato** ed eventualmente ottimizzato.  
 
@@ -101,7 +108,13 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 - L’attributo di Disco etichetta è stato definito come entità a parte “Etichetta” con relazione di cardinalità uno a molti “produce” tra Etichetta e Disco. Un'etichetta può produrre più dischi ma ogni disco può essere prodotto da una sola etichetta. Assumiamo quindi che un disco è prodotto da una sola etichetta, se ci sono altre etichette associate al disco verranno omesse. Viene posta una chiave esterna in Disco(tabella referente) che si riferisce all’identificatore di Etichetta (tabella riferita). Un'etichetta può esistere senza avere dischi associati e il disco può esistere senza etichetta.  Non possono esistere due etichette con lo stesso nome. Abbiamo deciso di implementare la tabella per evitare valori ripetuti, con successive perdita di informazione e errori di aggiornamento, in questo modo la base di dati sarà più efficiente. 
 -  L’attributo di disco etichetta è stato definito come entità a parte “Genere” con relazione di cardinalità uno a molti “classificato” tra Genere e Disco. Un genere può essere associato a più dischi, ma ogni disco può essere associato ad un solo genere. Assumiamo quindi che un disco è associato da un solo genere, se ci sono altri generi associati al disco verranno omessi. Viene posta una chiave esterna in Disco(tabella referente) che si riferisce all’identificatore di Genere(tabella riferita). Un genere può esistere senza avere dischi associati e il disco può esistere senza genere. Le informazioni sulle varie etichette non vengono perse con il cancellamento di dischi. Non possono esistere due generi con lo stesso nome 
 
+ 
+
+  
+
 ### Traduzione del modello ER nel modello relazionale 
+ 
+- Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
 
 > **LEGENDA** 
 > chiave primaria (PK = primary key) 
@@ -122,7 +135,7 @@ CONDIVISA (ID_collezione, ID_collezionista) PK: ID_collezione, ID_collezionista
 COMPOSTO (ID­_disco, ID_autore, ruolo) PK: ID_disco, ID_autore 
 SCRITTA (ID_autore, ID_traccia, ruolo) PK:ID_autore, ID_traccia 
 RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco 
-
+```
  
 
 ## Progettazione fisica 
@@ -131,11 +144,36 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
 
 ### Implementazione del modello relazionale 
 
-- Inserite qui lo *script SQL* con cui **creare il database** il cui modello relazionale è stato illustrato nella sezione precedente. Ricordate di includere nel codice tutti i vincoli che possono essere espressi nel DDL.  
+  
 
--Nella tabella “collezionista” sono presenti valori not null nickname, email e passkey. Il nickname varia da un collezionista ad un altro unico, infatti, non esisterà un collezionista che avrà un ID diverso con lo stesso nickname. 
+- Inserite qui lo *script SQL* con cui **creare il database** il cui modello relazionale è stato illustrato nella sezione precedente. Ricordate di includere nel codice tutti 
 
--Nella tabella “collezione” sono presenti i valori not null nome, flag e la chiave esterna ID_collezionista che di conseguenza non è null, se fosse stato null la collezione non sarebbe associato ad alcun collezionista. ID_collezionista fa riferimento a ID 
+  i vincoli che possono essere espressi nel DDL.  
+
+  ```sql
+  drop database if exists progettolab;
+  create database progettolab;
+  use progettolab;
+
+  drop table if exists collezionista;
+  drop table if exists collezione;
+  drop table if exists genere;
+  drop table if exists etichetta;
+  drop table if exists disco;
+  drop table if exists traccia;
+  drop table if exists autore;
+  drop table if exists doppione;
+  drop table if exists immagine;
+  drop table if exists condivisa;
+  drop table if exists composto;
+  drop table if exists scritta;
+  drop table if exists raccolta;
+
+  ```
+
+Nella tabella “collezionista” sono presenti valori not null nickname, email e passkey. Il nickname varia da un collezionista ad un altro unico, infatti, non esisterà un collezionista che avrà un ID diverso con lo stesso nickname. 
+
+Nella tabella “collezione” sono presenti i valori not null nome, flag e la chiave esterna ID_collezionista che di conseguenza non è null, se fosse stato null la collezione non sarebbe associato ad alcun collezionista. ID_collezionista fa riferimento a ID 
 
   
 
@@ -156,17 +194,21 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
 -Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
 
 #### Funzionalità 1 
--Viene inserita una nuova collezione con nome assegnato dall’utente e id collezione che rappresenta l’id del collezionista che vuole creare la collezione, il parametro id viene selezionato quindi in base all’utente che utilizza il database nell’applicazione e che richiama la procedura. 
+- Viene inserita una nuova collezione con nome assegnato dall’utente e id collezione che rappresenta l’id del collezionista che vuole creare la collezione, il parametro id viene selezionato quindi in base all’utente che utilizza il database nell’applicazione e che richiama la procedura. 
 > Inserimento di una nuova collezione. 
 ```sql 
 CREATE FUNCTION query1(nomec varchar(80), id_collezionista integer unsigned) RETURNS integer unsigned 
-READS SQL DATA 
-BEGIN 
-    IF id_collezionista is null or nomec is null then  
+READS SQL DATA
+
+BEGIN
+
+  IF id_collezionista is null or nomec is null then  
      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Valori inseriti errati'; 
-	END IF; 
-    INSERT INTO collezione(nome,ID_collezionista) VALUES (nomec, id_collezionista); 
-	RETURN last_insert_id(); 
+	END IF;
+
+  INSERT INTO collezione(nome,ID_collezionista) VALUES (nomec, id_collezionista); 
+	RETURN last_insert_id();
+
 END$$ 
 ``` 
 
@@ -174,291 +216,426 @@ END$$
 - La funzionalità dell’aggiunta di dischi ad una collezione è risultata un po' onerosa ma abbiamo cercato di rendere l’inserimento più facile per l’utente, in questo modo se un utente vuole aggiungere un disco alla sua collezione virtuale può aggiungere il disco, l’autore e le informazioni sulle copie fisiche possedute al database usando un’unica procedura 
 > Aggiunta di dischi a una collezione e di tracce a un disco.
 ```sql  
-CREATE PROCEDURE query2disco( 
-nomecollezione varchar(80), 
-nomed VARCHAR(100),  
-annod year, 
-barcoded bigint(13), 
-id_collezionista integer unsigned, 
-formatod varchar(20), 
-condizioned varchar(20), 
-quantitad smallint unsigned, 
-nomea varchar(50), 
-ipi integer unsigned 
-) 
-BEGIN 
+CREATE PROCEDURE query2disco ( nomecollezione varchar(80), nomed VARCHAR(100),  annod year, barcoded bigint(13), id_collezionista integer unsigned, 
+  formatod varchar(20), condizioned varchar(20), quantitad smallint unsigned, nomea varchar(50), ipi integer unsigned )
+
+BEGIN
+
   DECLARE id_collezione INTEGER UNSIGNED; 
   DECLARE id_disco INTEGER UNSIGNED; 
   DECLARE id_autore INTEGER UNSIGNED; 
-  DECLARE id_doppione INTEGER UNSIGNED; 
+  DECLARE id_doppione INTEGER UNSIGNED;
+
   -- Verifica se la collezione esiste 
   SELECT collezione.ID INTO id_collezione FROM collezione 
-  WHERE collezione.nome = nomecollezione AND collezione.ID_collezionista=id_collezionista LIMIT 1; 
+  WHERE collezione.nome = nomecollezione AND collezione.ID_collezionista=id_collezionista LIMIT 1;
+
   -- Verifica se il disco esiste 
   SELECT d.ID_disco INTO id_disco FROM dischiAutori d 
-  WHERE d.titolo_disco=nomed AND d.IPI=ipi LIMIT 1 ; 
+  WHERE d.titolo_disco=nomed AND d.IPI=ipi LIMIT 1 ;
+
   -- Se la collezione non esiste, esci dalla procedura 
   IF id_collezione IS NULL THEN 
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
-  END IF; 
-  -- Se il disco non esiste, crea il disco e lo associa a un autore 
-IF id_disco IS NULL THEN 
-  INSERT INTO disco(titolo_disco, anno_uscita, barcode) VALUES 
-  (nomed,annod,barcoded); 
-SET id_disco=last_insert_id(); 
-INSERT INTO autore(nome,IPI) VALUES (nomea,ipi); 
-SET id_autore=last_insert_id(); 
-INSERT INTO composto(ID_disco,ID_autore) VALUES (id_disco,id_autore); 
-END IF;
-  -- Verifica se l'associazione esiste già nella tabella raccolta 
-  IF not EXISTS( SELECT 1 FROM raccolta r WHERE r.ID_disco=id_disco AND r.ID_collezione=id_collezione) THEN 
-   -- Inserisci l'associazione nella tabella raccolta 
-  INSERT INTO raccolta (ID_collezione, ID_disco) 
-  VALUES (id_collezione, id_disco); 
-  END IF; 
-  SELECT ID INTO id_doppione FROM doppione WHERE doppione.formato=formatod AND doppione.condizione=condizioned  
-  AND doppione.ID_disco=id_disco; 
-  IF id_doppione is null THEN 
-  INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista) 
-  VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista); 
-  ELSE 
-  UPDATE doppione 
-  SET doppione.quantita=doppione.quantita+quantitad; 
-  END IF; 
-END$$ 
-```
+  END IF;
 
--Procedura per l'inserimento di una traccia in un disco
- ```sql
-CREATE FUNCTION query2traccia(  
-nomed varchar(100), 
-nomea varchar(50),  
-ipi integer unsigned, 
-duratat smallint unsigned, 
-nomet varchar(100),  
-isrc varchar(12)) RETURNS integer unsigned 
+  -- Se il disco non esiste, crea il disco e lo associa a un autore 
+  IF id_disco IS NULL THEN 
+    INSERT INTO disco(titolo_disco, anno_uscita, barcode) VALUES 
+    (nomed,annod,barcoded); 
+    SET id_disco=last_insert_id(); 
+    INSERT INTO autore(nome,IPI) VALUES (nomea,ipi); 
+    SET id_autore=last_insert_id(); 
+    INSERT INTO composto(ID_disco,ID_autore) VALUES (id_disco,id_autore); 
+  END IF;
+
+  -- Verifica se l'associazione esiste già nella tabella raccolta 
+  IF not EXISTS( SELECT 1 FROM raccolta r WHERE r.ID_disco=id_disco AND r.ID_collezione=id_collezione) THEN
+    -- Inserisci l'associazione nella tabella raccolta 
+    INSERT INTO raccolta (ID_collezione, ID_disco) 
+    VALUES (id_collezione, id_disco); 
+  END IF;
+
+  SELECT ID INTO id_doppione FROM doppione WHERE doppione.formato=formatod AND doppione.condizione=condizioned  
+  AND doppione.ID_disco=id_disco;
+
+  IF id_doppione is null THEN 
+    INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista) 
+    VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista); 
+  ELSE 
+    UPDATE doppione 
+    SET doppione.quantita=doppione.quantita+quantitad; 
+  END IF;
+
+END$$ 
+``` 
+
+ ```sql 
+CREATE FUNCTION query2traccia(nomed varchar(100), nomea varchar(50), ipi integer unsigned, duratat smallint unsigned, 
+  nomet varchar(100), isrc varchar(12)) RETURNS integer unsigned 
 READS SQL DATA 
+
 BEGIN 
+
   DECLARE id_traccia INTEGER UNSIGNED; 
   DECLARE id_disco INTEGER UNSIGNED; 
   DECLARE id_autore INTEGER UNSIGNED; 
+
   -- Verifica se il disco esiste 
   SELECT dischiAutori.ID_disco INTO id_disco 
-  FROM dischiAutori WHERE dischiAutori.IPI=ipi AND dischiAutori.titolo_disco=nomed; 
+  FROM dischiAutori WHERE dischiAutori.IPI=ipi AND dischiAutori.titolo_disco=nomed;
+
   IF id_disco IS NULL THEN 
-  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste'; 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste'; 
   END IF; 
+
   SELECT ID INTO id_autore FROM autore 
 	WHERE autore.IPI=ipi LIMIT 1; 
-  -- Verifica se la traccia esiste
+
+  -- Verifica se la traccia esiste 
   SELECT traccia.ID INTO id_traccia 
   FROM traccia 
   WHERE traccia.titolo=nomet AND traccia.ID_disco=id_disco; 
+
   -- Se la traccia non esiste viene inserita 
   IF id_traccia IS NULL THEN  
-	INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES  
-	(nomet,SEC_TO_TIME(duratat),isrc,id_disco); 
-    SET id_traccia=last_insert_id(); 
--- controllo se l'autore esiste 
-IF id_autore IS NULL THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Autore non esistente'; 
-END IF; 
-    INSERT INTO scritta(ID_traccia, ID_autore) VALUES (id_traccia, id_autore); 
-END IF; 
-RETURN id_traccia; 
+	  INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES  
+	  (nomet,SEC_TO_TIME(duratat),isrc,id_disco); 
+    SET id_traccia=last_insert_id();
+
+      -- controllo se l'autore esiste 
+      IF id_autore IS NULL THEN 
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Autore non esistente'; 
+      END IF; 
+
+    INSERT INTO scritta(ID_traccia, ID_autore) VALUES (id_traccia, id_autore);
+
+  END IF; 
+
+  RETURN id_traccia; 
+
 END$$ 
- ```
+ ``` 
 
 #### Funzionalità 3 
+
 > Modifica dello stato di pubblicazione di una collezione (da privata a pubblica e viceversa) e aggiunta di nuove condivisioni a una collezione.  
+
 ```sql 
-CREATE PROCEDURE modifica_stato_collezione (nomec varchar(80),id_collezionista integer unsigned) 
-BEGIN 
-DECLARE idc integer unsigned; 
-SELECT ID INTO idc FROM collezione WHERE nome=nomec AND collezione.ID_collezionista=id_collezionista; 
-UPDATE collezione 
-SET flag = CASE 
-    WHEN flag = 0 THEN 1 
-    WHEN flag = 1 THEN 0 
-END 
-WHERE ID=idc; 
--- eliminiamo le condivisioni per una playlist impostata da privata a pubblica 
-IF (SELECT flag FROM collezione WHERE ID=idc) = 1 THEN 
-	DELETE  FROM condivisa WHERE ID_collezione = idc; 
-    END IF; 
+CREATE PROCEDURE modifica_stato_collezione (nomec varchar(80),id_collezionista integer unsigned)
+
+BEGIN
+
+  DECLARE idc integer unsigned; 
+  SELECT ID INTO idc FROM collezione WHERE nome=nomec AND collezione.ID_collezionista=id_collezionista; 
+  UPDATE collezione 
+  SET flag = CASE 
+  WHEN flag = 0 THEN 1 
+  WHEN flag = 1 THEN 0 
+  END 
+  WHERE ID=idc;
+
+  -- eliminiamo le condivisioni per una playlist impostata da privata a pubblica 
+  IF (SELECT flag FROM collezione WHERE ID=idc) = 1 THEN 
+	  DELETE  FROM condivisa WHERE ID_collezione = idc; 
+  END IF; 
+
 END$$ 
 ``` 
+
+ 
+
 #### Funzionalità 4 
+
 > Rimozione di un disco da una collezione. 
+
 ```sql 
-CREATE PROCEDURE eliminazione_da_collezione( 
-nomed varchar(100), 
-ipi integer unsigned, 
-nomec varchar(80), 
-id_collezionista integer unsigned) 
-BEGIN 
-DECLARE iddisco integer unsigned; 
-DECLARE idcollezione integer unsigned; 
-IF id_collezionista is null THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezionista non esistente'; 
-END IF; 
-SELECT collezione.ID INTO idcollezione FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista=id_collezionista; 
-IF idcollezione is null THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione non esistente'; 
-END IF; 
-SELECT ID_disco INTO iddisco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi; 
-DELETE FROM raccolta  
-WHERE ID_disco = iddisco and ID_collezione = idcollezione; 
+CREATE PROCEDURE eliminazione_da_collezione( nomed varchar(100), ipi integer unsigned, nomec varchar(80), id_collezionista integer unsigned)
+
+BEGIN
+
+  DECLARE iddisco integer unsigned; 
+  DECLARE idcollezione integer unsigned; 
+
+  IF id_collezionista is null THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezionista non esistente'; 
+  END IF; 
+
+  SELECT collezione.ID INTO idcollezione FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista=id_collezionista;
+
+  IF idcollezione is null THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione non esistente'; 
+  END IF; 
+
+  SELECT ID_disco INTO iddisco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi; 
+  DELETE FROM raccolta  
+  WHERE ID_disco = iddisco and ID_collezione = idcollezione; 
+
 END$$ 
-```
+``` 
+
+ 
 
 #### Funzionalità 5 
+
 > Rimozione di una collezione. 
+
+  
+
 ```sql 
+
 CREATE PROCEDURE query5(id_collezionista integer unsigned, nomec varchar(80)) 
-BEGIN 
-DECLARE idc integer unsigned; 
-IF id_collezionista IS NULL OR nomec IS NULL THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione o collezionista non esistente'; 
-END IF; 
-SELECT ID INTO idc FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista LIMIT 1; 
-DELETE FROM collezione WHERE collezione.ID=idc; 
-DELETE FROM raccolta WHERE raccolta.ID_collezione=idc; 
-DELETE FROM condivisa WHERE condivisa.ID_collezione=idc;
+
+BEGIN
+
+  DECLARE idc integer unsigned; 
+  IF id_collezionista IS NULL OR nomec IS NULL THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione o collezionista non esistente'; 
+  END IF;
+
+  SELECT ID INTO idc FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista LIMIT 1; 
+  DELETE FROM collezione WHERE collezione.ID=idc; 
+  DELETE FROM raccolta WHERE raccolta.ID_collezione=idc; 
+  DELETE FROM condivisa WHERE condivisa.ID_collezione=idc; 
+
 END$$ 
 ``` 
 
+ 
+
 #### Funzionalità 6 
+
 > Lista di tutti i dischi in una collezione.  
+
 ```sql 
+
 CREATE PROCEDURE lista_dischi (nomec varchar(60), id_collezionista integer unsigned) 
+
 BEGIN 
-DECLARE id_collezione integer unsigned; 
-IF id_collezionista is null THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste'; 
-END IF; 
-SELECT ID INTO id_collezione FROM collezione WHERE collezione.nome=nomec AND ID_collezionista=id_collezionista LIMIT 1; 
-IF id_collezione is null THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
-END IF; 
-SELECT disco.titolo_disco FROM disco  
-JOIN raccolta ON disco.ID=raccolta.ID_disco 
-WHERE raccolta.ID_collezione=id_collezione; 
-END$$
+
+  DECLARE id_collezione integer unsigned; 
+  IF id_collezionista is null THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste'; 
+  END IF;
+
+  SELECT ID INTO id_collezione FROM collezione WHERE collezione.nome=nomec AND ID_collezionista=id_collezionista LIMIT 1;
+
+  IF id_collezione is null THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
+  END IF; 
+
+  SELECT disco.titolo_disco FROM disco  
+  JOIN raccolta ON disco.ID=raccolta.ID_disco 
+  WHERE raccolta.ID_collezione=id_collezione; 
+
+END$$ 
 ``` 
 
+ 
+
 #### Funzionalità 7 
+
 > Track list di un disco. 
+
+  
+
 ```sql 
+
 CREATE PROCEDURE tracklist (nomed varchar(100), ipi integer unsigned) 
+
 BEGIN 
-DECLARE id_disco integer unsigned; 
-SELECT dischiAutori.ID_disco INTO id_disco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi LIMIT 1; 
-IF id_disco is null THEN 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste'; 
-END IF; 
-SELECT DISTINCT titolo, traccia.durata, titolo_disco  
-FROM disco JOIN traccia ON disco.ID=traccia.ID_disco 
-WHERE traccia.ID_disco = id_disco; 
+
+  DECLARE id_disco integer unsigned; 
+  SELECT dischiAutori.ID_disco INTO id_disco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi LIMIT 1; 
+
+  IF id_disco is null THEN 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste'; 
+  END IF; 
+
+  SELECT DISTINCT titolo, traccia.durata, titolo_disco  
+  FROM disco JOIN traccia ON disco.ID=traccia.ID_disco 
+  WHERE traccia.ID_disco = id_disco; 
+
 END$$ 
 ``` 
 
  
 
 #### Funzionalità 8 
+
 > Ricerca di dischi in base a nomi di autori/compositori/interpreti e/o titoli. Si potrà decidere di includere nella ricerca le collezioni di un certo collezionista e/o quelle condivise con lo stesso collezionista e/o quelle pubbliche. 
+
+  
+
 ```sql 
+CREATE PROCEDURE trova_disco (id_collezionista integer unsigned, nome_autore varchar(50), titolo_disco varchar(50))
+
+  BEGIN
+
+  -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni private di un collezionista
+  SELECT dischiAutori.titolo_disco
+  FROM dischiAutori
+  JOIN raccolta ON raccolta.ID_disco=dischiAutori.ID_disco
+  JOIN collezione ON collezione.ID = raccolta.ID_collezione
+  WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+    AND collezione.flag = 0
+    AND collezione.ID_collezionista = id_collezionista
+  UNION
+
+  -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni condivise con un collezionista
+  SELECT dischiAutori.titolo_disco
+  FROM dischiAutori
+  JOIN raccolta ON raccolta.ID_disco=dischiAutori.ID_disco
+  JOIN collezione ON collezione.ID = raccolta.ID_collezione
+  JOIN condivisa ON condivisa.ID_collezione = collezione.ID
+  WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')))
+    AND condivisa.ID_collezionista = id_collezionista
+  UNION
+
+  -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni pubbliche
+  SELECT dischiAutori.titolo_disco
+  FROM dischiAutori
+  JOIN raccolta ON raccolta.ID_disco = dischiAutori.ID_disco
+  JOIN dischiCPubbliche ON dischiCPubbliche.ID = raccolta.ID_disco
+  WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.titolo_disco LIKE (CONCAT('%',titolo_disco,'%')));
+
+END$$
 ``` 
 
 #### Funzionalità 9 
+
 - Nel caso di questa procedura l’utente può scegliere il proprietario della playlist che vuole visualizzare, i dischi appartenenti alla collezione verranno visualizzati solo se l’utente che richiama la funzione ha i permessi necessari alla visualizzazione della collezione. 
+
 > Verifica della visibilità di una collezione da parte di un collezionista. 
+
 ```sql 
-CREATE PROCEDURE verifica_visibilita ( 
-id_collezionista integer unsigned,  
-nomecollezione varchar(80),  
-nickname1 varchar(60)) 
+CREATE PROCEDURE verifica_visibilita ( id_collezionista integer unsigned, nomecollezione varchar(80), nickname1 varchar(60)) 
+
 BEGIN 
-DECLARE id_collezione integer unsigned; 
-DECLARE id_collezionista1 integer unsigned; 
-IF id_collezionista is null or nickname1 is null or nomecollezione is null then 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Inseriti valori errati'; 
-END IF; 
-SELECT c1.ID INTO id_collezionista1 FROM collezionista c1 WHERE c1.nickname=nickname1 LIMIT 1; 
-IF id_collezionista1 is null then 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste'; 
-END IF; 
-SELECT c.ID INTO id_collezione
-FROM collezione c WHERE c.nome=nomecollezione AND c.ID_collezionista=id_collezionista1 LIMIT 1; 
-IF id_collezione is null then 
-SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
-END IF; 
-SELECT disco.titolo_disco 
-FROM collezione c  
-JOIN raccolta ON raccolta.ID_collezione = c.ID 
-JOIN disco ON disco.ID=raccolta.ID_disco 
-LEFT JOIN condivisa ON raccolta.ID_collezione = condivisa.ID_collezione 
-WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1); 
+
+  DECLARE id_collezione integer unsigned; 
+  DECLARE id_collezionista1 integer unsigned;
+
+  IF id_collezionista is null or nickname1 is null or nomecollezione is null then 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Inseriti valori errati'; 
+  END IF; 
+
+  SELECT c1.ID INTO id_collezionista1 FROM collezionista c1 WHERE c1.nickname=nickname1 LIMIT 1; 
+
+  IF id_collezionista1 is null then 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste'; 
+  END IF; 
+
+  SELECT c.ID INTO id_collezione FROM collezione c WHERE c.nome=nomecollezione AND c.ID_collezionista=id_collezionista1 LIMIT 1; 
+
+  IF id_collezione is null then 
+    SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
+  END IF; 
+
+  SELECT disco.titolo_disco 
+  FROM collezione c  
+  JOIN raccolta ON raccolta.ID_collezione = c.ID 
+  JOIN disco ON disco.ID=raccolta.ID_disco 
+  LEFT JOIN condivisa ON raccolta.ID_collezione = condivisa.ID_collezione 
+  WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1); 
+
 END$$ 
 ``` 
+
+ 
 
 #### Funzionalità 10 
+
 > Numero dei brani (tracce di dischi) distinti di un certo autore (compositore, musicista) presenti nelle collezioni pubbliche. 
+
+  
+
 ```sql 
 CREATE PROCEDURE braniPerAutore(nomea varchar(50),ipi integer unsigned ) 
+
 BEGIN 
-DECLARE ida integer unsigned; 
-SELECT autore.ID INTO ida FROM autore WHERE IPI=ipi LIMIT 1; 
-SELECT dischiAutori.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani 
-FROM dischiAutori  
-JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco 
-LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore 
-JOIN dischiCPubbliche ON dischiCPubbliche.ID=dischiAutori.ID_disco 
-WHERE dischiAutori.ID_autore=ida 
-GROUP BY dischiAutori.ID_autore; 
+
+  DECLARE ida integer unsigned; 
+  SELECT autore.ID INTO ida FROM autore WHERE IPI=ipi LIMIT 1; 
+  SELECT dischiAutori.nome, COUNT(DISTINCT traccia.ID) AS Numero_brani 
+  FROM dischiAutori  
+  JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco 
+  LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore 
+  JOIN dischiCPubbliche ON dischiCPubbliche.ID=dischiAutori.ID_disco 
+  WHERE dischiAutori.ID_autore=ida 
+  GROUP BY dischiAutori.ID_autore; 
+
 END$$ 
 ``` 
 
+ 
 
-#### Funzionalità 11
+#### Funzionalità 11 
+
 > Minuti totali di musica riferibili a un certo autore (compositore, musicista) memorizzati nelle collezioni pubbliche. 
+
+  
+
 ```sql 
 CREATE PROCEDURE minutiPerAutore(nomea varchar(60), ipi integer unsigned) 
+
 BEGIN 
-DECLARE ida integer unsigned; 
-SELECT ID INTO ida FROM autore WHERE autore.IPI=ipi; 
-SELECT dischiAutori.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani
-FROM dischiAutori 
-JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco 
-LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore 
-JOIN dischiCPubbliche ON dischiCPubbliche.ID = dischiAutori.ID_disco 
-WHERE dischiAutori.ID_autore=ida 
-GROUP BY dischiAutori.ID_autore; 
+
+  DECLARE ida integer unsigned; 
+  SELECT ID INTO ida FROM autore WHERE autore.IPI=ipi; 
+  SELECT dischiAutori.nome, SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata))) AS Numero_brani 
+  FROM dischiAutori 
+  JOIN traccia ON traccia.ID_disco=dischiAutori.ID_disco 
+  LEFT JOIN scritta ON scritta.ID_autore=dischiAutori.ID_autore 
+  JOIN dischiCPubbliche ON dischiCPubbliche.ID = dischiAutori.ID_disco 
+  WHERE dischiAutori.ID_autore=ida 
+  GROUP BY dischiAutori.ID_autore; 
+
 END$$ 
 ``` 
 
+ 
+
 #### Funzionalità 12 
+
 > Statistiche (una query per ciascun valore): numero di collezioni di ciascun collezionista, numero di dischi per genere nel sistema. 
+
+  
+
 ```sql 
 -- numero di collezioni di ciascun collezionista 
 CREATE PROCEDURE statistiche1() 
+
 BEGIN 
-SELECT nickname, COUNT(*) as numero_collezioni FROM collezione JOIN collezionista ON ID_collezionista=collezionista.ID 
-GROUP BY ID_collezionista; 
+
+  SELECT nickname, COUNT(*) as numero_collezioni FROM collezione JOIN collezionista ON ID_collezionista=collezionista.ID 
+  GROUP BY ID_collezionista; 
+
 END$$ 
-```
+``` 
+
+ 
 
 ```sql  
 -- 12.2 Statistiche: numero di dischi per genere nel sistema. 
 CREATE PROCEDURE statistiche2() 
+
 BEGIN 
-SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON genere.ID = disco.ID_genere 
-GROUP BY ID_genere; 
+
+  SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON genere.ID = disco.ID_genere 
+  GROUP BY ID_genere; 
+
 END$$ 
-```
+``` 
+
+ 
 
 #### Funzionalità 13 
+
 > Opzionalmente, dati un numero di barcode, un titolo e il nome di un autore, individuare tutti i dischi presenti nelle collezioni che sono più coerenti con questi dati 
+
+  
+
 ```sql 
 
 CODICE 
