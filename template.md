@@ -121,22 +121,15 @@ L'attributo "durata_totale" dell'entità "disco" è un attributo calcolato otten
   
 
 ### Traduzione del modello ER nel modello relazionale 
-<<<<<<< HEAD
  
 - Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
-
-LEGENDA 
-chiave primaria (PK = primary key) 
-chiave esterna (FK = foreign key) 
-
-=======
 
 > **LEGENDA** 
 > chiave primaria (PK = primary key) 
 > chiave esterna (FK = foreign key) 
 
 ```sql
->>>>>>> 07598fdebd4467e4722d9878218644262d409d0d
+
 COLLEZIONISTA (ID, nickname, email, passkey) PK:ID 
 COLLEZIONE (ID, nome, flag, ID_collezionista) PK: ID - FK:ID_collezionista 
 GENERE (ID, nome) PK:ID 
