@@ -78,6 +78,7 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 
 ## Progettazione concettuale 
 
+![diagramma e-r base](https://github.com/maryluuuu/progetto-basi-di-dati/assets/114227980/dbde1985-8acf-45a3-a9a1-9aba91dd6f56)
 
 
   
