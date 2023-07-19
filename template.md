@@ -1004,10 +1004,29 @@ END$$
 
 > Opzionalmente, dati un numero di barcode, un titolo e il nome di un autore, individuare tutti i dischi presenti nelle collezioni che sono più coerenti con questi dati 
 
-  
-
 ```sql 
-
-CODICE 
+CREATE PROCEDURE query13 (numbarcode bigint(13), titolod varchar(100), nomea varchar(50))
+BEGIN
+ CREATE TEMPORARY TABLE temp_results (
+        titolo_disco VARCHAR(100),
+        nome_autore VARCHAR(50),
+        punteggio INT
+        );
+SELECT disco.titolo_disco, autore.nome,
+       (CASE
+           WHEN disco.barcode = numbarcode THEN 3
+           WHEN disco.titolo_disco LIKE CONCAT('%',titoloD,'%') THEN 2
+           WHEN autore.nome = nomea THEN 1
+           ELSE 0
+       END) AS punteggio
+FROM disco
+JOIN composto ON disco.ID = composto.ID_disco
+JOIN autore ON composto.ID_autore = autore.ID
+WHERE (disco.barcode = numbarcode
+       OR disco.titolo_disco LIKE CONCAT('%',titoloD,'%')
+       OR autore.nome = 'nome_autore')
+ORDER BY punteggio DESC
+LIMIT 10;
+END$$
 
 ``` 
