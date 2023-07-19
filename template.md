@@ -73,37 +73,21 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 - Possiede: relazione di cardinalità uno a molti tra Doppione e Collezionista. Un collezionista può avere più doppioni ma un doppione è di un solo collezionista. Viene posta una chiave esterna in Doppione (tabella referente) che si riferisce all’identificatore del Collezionista (tabella riferita).  Doppione deve essere necessariamente collegata ad un collezionista 
 - Rappresenta: relazione di cardinalità uno a molti tra Immagine e Disco. Un disco può avere più immagini ma un’immagine è associata ad un solo disco. Viene posta una chiave esterna in Immagine (tabella referente) che si riferisce all’identificatore del Disco (tabella riferita).  Un'immagine deve essere necessariamente collegata ad un disco. 
 - Formato: relazione di cardinalità uno a molti tra Traccia e Disco. Un disco può essere associato a più tracce, ma ogni traccia può essere associato ad un solo disco. Viene posta una chiave esterna in Traccia(tabella referente) che si riferisce all’identificatore di Disco(tabella riferita). Una traccia non può esistere senza un disco associato.
-  
 -Scritta: relazione di cardinalità molti a molti tra Traccia e Autore che permette l’associazione di più autori ad una traccia con i loro ruoli(compositore ed esecutore). Una traccia può avere più autori e un autore può scrivere più tracce. Viene create una tabella per la relazione di nome “scritta” che associa le entità Traccia e Autore e permette di associare i diversi autori alle tracce univocamente tramite i loro rispettivi identificatori. Una traccia può esistere senza essere associata a un’autore, l’autore può non avere associati dischi.
-
 -Composto: relazione di cardinalità molti a molti tra Disco e Autore che permette l’associazione di più autori ad un disco con i loro ruoli(compositore ed esecutore). Un disco può avere più autori deve averne almeno uno per essere identificabile e un autore può comporre più dischi. Viene create una tabella per la relazione di nome “composto” che associa le entità Disco e Autore e permette di associare i diversi autori ai dischi univocamente tramite i loro rispettivi identificatori. Un disco non può esistere senza essere associato ad un autore, l’autore può non avere associati dischi. 
 
 ## Progettazione concettuale 
   
 - Assumiamo che il genere e l’etichetta di un disco siano unici, che non possano esistere due dischi usciti nello stesso anno con lo stesso nome.  
-
 - Possono esistere due autori con lo stesso nome ma con IPI diverso (Interested Party Information, codice univoco assegnato agli autori musicali. 
-
-- Assumiamo che un autore non possa comporre più dischi con lo stesso nome 
-
+- Assumiamo che un autore non possa comporre più dischi con lo stesso nome.
 - L’entità Doppione memorizza le informazioni associate alle copie fisiche dei dischi posseduti dai collezionisti e specifica la condizione in cui si trova il disco, il formato e la quantità che un collezionista possiede. L’entità è la copia fisica di un disco, abbiamo deciso di crearla per evitare la perdita di informazione e gli errori di aggiornamento che potrebbero crearsi quando si gestiscono numerose tuple in unica tabella con molte informazioni ripetute. Abbiamo deciso quindi di tenere traccia delle copie fisiche dei dischi posseduti dal collezionista in una entità a parte e di associare le informazioni generali del disco all’entità disco rendendola indipendente dalle sue copie fisiche.  
-
 -Doppione è definita come entità padre nella generalizzazione totale con le entità figlie Formato Digitale e Formato Fisico che identificano le informazioni specifiche per la copia del disco. Una generalizzazione è totale quando tutte le istanze dell’entità genitore fanno parte di almeno un’entità figlia, almeno un formato identifica il doppione del disco. 
-
 -Autore è definita come entità padre nella generalizzazione parziale con le entità figlie Compositore e Autore. In una generalizzazione parziale, ogni istanza dell'entità padre ("Autore") può appartenere solo a una delle entità figlie ("Compositore" o "Esecutore"), ma non ad entrambe contemporaneamente. 
-
 - Disco rappresenta l'entità astratta del disco posseduto dal collezionista a cui vengono collegate le informazioni generali del disco che non dipendono dalla copia fisica posseduta dall'utente, viene collegata alle entità traccia ed autore, in questo modo si evita di sovraccaricare l'entità disco con molti attributi e, nel caso in cui nel database non ci siano più copie fisiche del disco, le informazioni dell'album e le sue associazioni con le altre tabelle non vengano perse. Un disco viene associato a un solo genere. Disco può essere univocamente identificato dal titolo del disco e dall’autore/autori a lui collegati. L’attributo “durata_totale” viene calcolato automaticamente come somma delle tracce associate al disco. 
-
  
 
- 
-
-  
-
-### Formalizzazione dei vincoli non esprimibili nel modello ER 
-
-  
-
+### Formalizzazione dei vincoli non esprimibili nel modello ER   
 - Elencate gli altri **vincoli** sui dati che avete individuato e che non possono essere espressi nel diagramma ER. 
 
   
@@ -118,20 +102,10 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 
 - Riportate qui il modello **ER ristrutturato** ed eventualmente ottimizzato.  
 
-La relazione “Condivisa” lega le entità COLLEZIONE e COLLEZIONISTA 
-
- 
-
-  
-
-- Discutete le scelte effettuate, ad esempio nell'eliminare una generalizzazione o nello scindere un'entità. 
-
+-La relazione “Condivisa” lega le entità COLLEZIONE e COLLEZIONISTA 
 - La generalizzazione totale associata a Doppione tra Formato Fisico e Formato Digitale è stata implementata aggiungendo un attributo chiamato "Formato" che identifica a quale formato appartiene il disco. Questo attributo può assumere valori specifici come "digitale" o "vinile" o “CD” o “musicassetta” o “LP” o “Stereo8” per indicare il tipo di formato del disco. Inoltre, abbiamo inserito un attributo aggiuntivo chiamato "condizione" specifico per il caso di formato fisico. Questo attributo può essere utilizzato per registrare informazioni sulla condizione fisica del disco, ad esempio se è in “perfetta” o “eccellente” o “molto buona” o “buona” o “brutta” o “pessima” condizione. 
-
 - La generalizzazione totale associata ad Autore tra Compositore ed Esecutore è stata implementata aggiungendo un attributo chiamato "ruolo" che identifica il ruolo dell’autore nelle rispettive relazioni di autore con traccia e con disco. Questo attributo può assumere valori specifici come "compositore" o "esecutore" o “compositore ed esecutore” e servono per indicare il ruolo dell’artista nella composizione del disco e della traccia.  
-
 - L’attributo di Disco etichetta è stato definito come entità a parte “Etichetta” con relazione di cardinalità uno a molti “produce” tra Etichetta e Disco. Un'etichetta può produrre più dischi ma ogni disco può essere prodotto da una sola etichetta. Assumiamo quindi che un disco è prodotto da una sola etichetta, se ci sono altre etichette associate al disco verranno omesse. Viene posta una chiave esterna in Disco(tabella referente) che si riferisce all’identificatore di Etichetta (tabella riferita). Un'etichetta può esistere senza avere dischi associati e il disco può esistere senza etichetta.  Non possono esistere due etichette con lo stesso nome. Abbiamo deciso di implementare la tabella per evitare valori ripetuti, con successive perdita di informazione e errori di aggiornamento, in questo modo la base di dati sarà più efficiente. 
-
 -  L’attributo di disco etichetta è stato definito come entità a parte “Genere” con relazione di cardinalità uno a molti “classificato” tra Genere e Disco. Un genere può essere associato a più dischi, ma ogni disco può essere associato ad un solo genere. Assumiamo quindi che un disco è associato da un solo genere, se ci sono altri generi associati al disco verranno omessi. Viene posta una chiave esterna in Disco(tabella referente) che si riferisce all’identificatore di Genere(tabella riferita). Un genere può esistere senza avere dischi associati e il disco può esistere senza genere. Le informazioni sulle varie etichette non vengono perse con il cancellamento di dischi. Non possono esistere due generi con lo stesso nome 
 
  
@@ -139,45 +113,26 @@ La relazione “Condivisa” lega le entità COLLEZIONE e COLLEZIONISTA
   
 
 ### Traduzione del modello ER nel modello relazionale 
-
- - Riportate qui il **modello relazionale** finale, derivato dal modello ER ristrutturato della sezione precedente e che verrà implementato in SQL in quella successiva.  
-
+ 
 - Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
 
 LEGENDA 
-
 chiave primaria (PK = primary key) 
-
 chiave esterna (FK = foreign key) 
 
- 
-
 COLLEZIONISTA (ID, nickname, email, passkey) PK:ID 
-
 COLLEZIONE (ID, nome, flag, ID_collezionista) PK: ID - FK:ID_collezionista 
-
 GENERE (ID, nome) PK:ID 
-
 ETICHETTA (ID, nome) PK:ID 
-
 DISCO (ID, titolo_disco, anno_uscita, barcode, durata_totale, ID_etichetta, ID_genere)  
-
 PK:ID - FK: ID_etichetta, ID_genere 
-
 TRACCIA (ID, ISRC, titolo, durata, ID_disco) PK:ID 
-
 AUTORE (ID, IPI, nome) PK:ID  
-
 DOPPIONE (ID, quantita, formato, condizione, ID_disco, ID_collezionista) PK:ID – FK: ID_disco, ID_collezionista 
-
 IMMAGINE (ID, percorso, tipo, ID_disco) PK:ID – FK:ID_disco 
-
 CONDIVISA (ID_collezione, ID_collezionista) PK: ID_collezione, ID_collezionista 
-
 COMPOSTO (ID­_disco, ID_autore, ruolo) PK: ID_disco, ID_autore 
-
 SCRITTA (ID_autore, ID_traccia, ruolo) PK:ID_autore, ID_traccia 
-
 RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco 
 
  
@@ -213,165 +168,83 @@ Nella tabella “collezione” sono presenti i valori not null nome, flag e la c
   
 
 ### Implementazione funzionalità richieste 
-
-Assumiamo che nelle query in cui compare direttamente l’id_collezionista nei parametri di input delle procedure, questo venga generato automaticamente a partire dall’ID dell’utente che ha effettuato l’accesso ad una applicazione e che sta usando la funzionalità. 
-
-Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
-
-  
+-Assumiamo che nelle query in cui compare direttamente l’id_collezionista nei parametri di input delle procedure, questo venga generato automaticamente a partire dall’ID dell’utente che ha effettuato l’accesso ad una applicazione e che sta usando la funzionalità. 
+-Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
 
 #### Funzionalità 1 
-
 -Viene inserita una nuova collezione con nome assegnato dall’utente e id collezione che rappresenta l’id del collezionista che vuole creare la collezione, il parametro id viene selezionato quindi in base all’utente che utilizza il database nell’applicazione e che richiama la procedura. 
-
 > Inserimento di una nuova collezione. 
-
 ```sql 
-
 CREATE FUNCTION query1(nomec varchar(80), id_collezionista integer unsigned) RETURNS integer unsigned 
-
 READS SQL DATA 
-
 BEGIN 
-
     IF id_collezionista is null or nomec is null then  
-
      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Valori inseriti errati'; 
-
 	END IF; 
-
     INSERT INTO collezione(nome,ID_collezionista) VALUES (nomec, id_collezionista); 
-
 	RETURN last_insert_id(); 
-
 END$$ 
-
 ``` 
 
-  
-
- 
-
- 
-
 #### Funzionalità 2  
-
 - La funzionalità dell’aggiunta di dischi ad una collezione è risultata un po' onerosa ma abbiamo cercato di rendere l’inserimento più facile per l’utente, in questo modo se un utente vuole aggiungere un disco alla sua collezione virtuale può aggiungere il disco, l’autore e le informazioni sulle copie fisiche possedute al database usando un’unica procedura 
-
-> Aggiunta di dischi a una collezione e di tracce a un disco. 
-
-  
-
+> Aggiunta di dischi a una collezione e di tracce a un disco.
 ```sql  
-
 CREATE PROCEDURE query2disco( 
-
 nomecollezione varchar(80), 
-
 nomed VARCHAR(100),  
-
 annod year, 
-
 barcoded bigint(13), 
-
 id_collezionista integer unsigned, 
-
 formatod varchar(20), 
-
 condizioned varchar(20), 
-
 quantitad smallint unsigned, 
-
 nomea varchar(50), 
-
 ipi integer unsigned 
-
 ) 
-
 BEGIN 
-
   DECLARE id_collezione INTEGER UNSIGNED; 
-
   DECLARE id_disco INTEGER UNSIGNED; 
-
   DECLARE id_autore INTEGER UNSIGNED; 
-
   DECLARE id_doppione INTEGER UNSIGNED; 
-
   -- Verifica se la collezione esiste 
-
   SELECT collezione.ID INTO id_collezione FROM collezione 
-
   WHERE collezione.nome = nomecollezione AND collezione.ID_collezionista=id_collezionista LIMIT 1; 
-
   -- Verifica se il disco esiste 
-
   SELECT d.ID_disco INTO id_disco FROM dischiAutori d 
-
   WHERE d.titolo_disco=nomed AND d.IPI=ipi LIMIT 1 ; 
-
   -- Se la collezione non esiste, esci dalla procedura 
-
   IF id_collezione IS NULL THEN 
-
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste'; 
-
   END IF; 
-
   -- Se il disco non esiste, crea il disco e lo associa a un autore 
-
 IF id_disco IS NULL THEN 
-
   INSERT INTO disco(titolo_disco, anno_uscita, barcode) VALUES 
-
   (nomed,annod,barcoded); 
-
 SET id_disco=last_insert_id(); 
-
 INSERT INTO autore(nome,IPI) VALUES (nomea,ipi); 
-
 SET id_autore=last_insert_id(); 
-
 INSERT INTO composto(ID_disco,ID_autore) VALUES (id_disco,id_autore); 
-
-END IF; 
-
+END IF;
   -- Verifica se l'associazione esiste già nella tabella raccolta 
-
   IF not EXISTS( SELECT 1 FROM raccolta r WHERE r.ID_disco=id_disco AND r.ID_collezione=id_collezione) THEN 
-
    -- Inserisci l'associazione nella tabella raccolta 
-
   INSERT INTO raccolta (ID_collezione, ID_disco) 
-
   VALUES (id_collezione, id_disco); 
-
   END IF; 
-
   SELECT ID INTO id_doppione FROM doppione WHERE doppione.formato=formatod AND doppione.condizione=condizioned  
-
   AND doppione.ID_disco=id_disco; 
-
   IF id_doppione is null THEN 
-
   INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista) 
-
   VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista); 
-
   ELSE 
-
   UPDATE doppione 
-
   SET doppione.quantita=doppione.quantita+quantitad; 
-
   END IF; 
-
 END$$ 
-
 ``` 
 
  ```sql 
-
 CREATE FUNCTION query2traccia(  
 
 nomed varchar(100), 
