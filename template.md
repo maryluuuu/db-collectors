@@ -3,160 +3,82 @@
   
 
 **Gruppo di lavoro**: 
-
-  
-
 | Matricola | Nome           | Cognome | Contributo al progetto | 
 |:------------:|:----------------:|:-------------:|:-----------------------------:| 
 |251926     |Maria Alberta|Caradio      |                                         | 
 |278438     |Federico         | Leopardi    | 	                           | 
 |278566     |Filippo             |Rastelli       |                        	             |
   
-
 **Data di consegna del progetto**: gg/mm/aaaa 
-
   
-
 ## Analisi dei requisiti 
-
 L'obiettivo del progetto "Collectors" è quello di sviluppare un database per la gestione delle collezioni di dischi dei collezionisti. Il database consente la registrazione di dati dei collezionisti, le loro collezioni di dischi, i dettagli e le tracce associate a ciascun disco. Il sistema offre una serie di funzionalità per l'inserimento, la modifica e la visualizzazione dei dati, nonché per la ricerca e l’analisi delle informazioni memorizzate.  
-
   
-
-**Requisiti**:  
-
-  
-
+**Requisiti**: 
 - Registrare i dati dei collezionisti, compresi e-mail e nickname.  
-
 - Registrare i dati delle collezioni, consentendo ai collezionisti di creare più collezioni, ciascuna con un nome distinto.  
-
 - Registrare i dettagli dei dischi, inclusi autori, titolo, anno di uscita, etichetta, genere, stato di conservazione, formato, numero di bar-code e numero di doppioni.  
-
 - Registrare le tracce dei dischi, compresi titolo, durata, compositore ed esecutore.  
-
 - Consentire l'associazione di immagini ai dischi, ad esempio copertina, retro, facciate interne o libretti.  
-
 - Consentire ai collezionisti di condividere le proprie collezioni con nessuno, altri utenti o renderle pubbliche.  
-
 - Fornire operazioni di base come l'inserimento di una nuova collezione, l'aggiunta di dischi e tracce, la modifica dello stato di pubblicazione di una collezione, la      
-
    rimozione di dischi o collezioni. 
-
 - Supportare funzionalità avanzate come la visualizzazione dei dischi in una collezione, la visualizzazione della tracklist di un disco, la ricerca di dischi basata su  
-
    autori/compositori/interpreti o titoli e fornire le statistiche sui dati.  
-
   
-
 **Dominio**: 
-
 Elenchiamo le scelte progettuali relative al dominio della base di dati: 
-
 1. **Identificazione delle entità e dei loro attributi**:  
-
 **Collezionista:** entità a cui sono associate le informazioni dei collezionisti 
-
 nickname: rappresenta il nome nella piattaforma associato con l'utente, è univoco quindi non possono esistere più utenti con lo stesso nickname, il dominio dell'attributo è stringa di caratteri. 
-
 email: contiene l'indirizzo e-mail del collezionista è univoco, il dominio dell'attributo è stringa di caratteri. 
-
 passkey: rappresenta la password dell’utente, il dominio dell’attributo è stringa di caratteri. 
-
   
-
 **Collezione:** entità debole che memorizza le informazioni sulle collezioni 
-
 nome: attributo nome dell'entità collezione contiene il nome della collezione, il dominio sono le stringhe di caratteri. Il titolo di una collezione è unico per ogni collezionista, non possono esserci due collezioni appartenenti ad un utente con lo stesso titolo. 
-
 flag: identifica lo stato della collezione se è pubblica o privata, il suo dominio è un valore booleano, (pubblica è uguale a 1 e privato è uguale a 0) in questo modo si evita all'utente di scrivere delle stringhe e quindi di commettere eventuali errori, inoltre lo spazio occupato da un valore booleano è minore di quello che occupa una stringa di caratteri. 
 
-  
-
 **Disco**:  
-
 titolo_disco: contiene il titolo del disco, il dominio dell'attributo è stringa di caratteri 
-
 anno_uscita: memorizza l'anno di uscita del disco, il dominio dell'attributo è quindi valori temporali. 
-
 barcode: memorizza il codice a barre univoco associato a disco, può essere nullo, il dominio dell'attributo è stringa di caratteri 
-
 durata_totale: somma della durata delle singole tracce associate al disco, il dominio dell'attributo è valore temporale. 
-
 genere: memorizza il nome del genere musicale, il dominio dell’attributo è stringa di caratteri 
-
 etichetta: memorizza il nome dell’etichetta che ha prodotto il disco, il dominio dell’attributo è stringa di caratteri 
-
  
-
-  
-
 **Traccia** entità che memorizza le informazioni sulle tracce 
-
 titolo: contiene il titolo della traccia, il dominio dell'attributo è stringa di caratteri 
-
 durata: contiene la durata della traccia 
-
 ISRC: contiene la stringa alfanumerica di 12 caratteri che identifica il codice internazionale delle singole opere musicali, il dominio è stringa di caratteri 
-
   
-
 **Doppione** : entità che memorizza informazione sulle copie dei dischi dei collezionisti 
-
 quantità: memorizza la quantità dei dischi fisici appartenenti all’utente con lo stesso formato e la stessa condizione, il dominio dell’attributo è valore numerico. 
-
 formato: memorizza le informazioni sul formato del disco, che può essere scelto da un elenco di valori predefiniti che indicano i vari tipi di formato, il dominio dell’attributo è stringa di caratteri. 
-
 condizione: memorizza le informazioni sulla condizione in cui si trova la copia dell’utente, che può essere scelto da un elenco predefinito di condizioni, il dominio dell’attributo è stringa di caratteri.  
-
  
-
 **Autore**:   
-
 Nome: contiene il nome dell’autore, il dominio dell’attributo è una stringa di caratteri, è possibile creare due autori con lo stesso nome. 
-
 IPI: identificativo univoco dell’utente, formato da una stringa alfanumerica di 12 caratteri, il dominio dell’attributo è stringa di caratteri 
-
  
-
 **Immagine**: L’entità debole immagine memorizza le informazioni delle immagini associate ai dischi. 
-
 percorso: Contiene il percorso del file dell’immagine, identifica quindi univocamente le immagini, il dominio dell’attributo è una stringa di caratteri 
-
 tipo: identifica il tipo di immagine, ad esempio se l’immagine è della copertina del disco, della tracklist e eventuali immagini del libretto e dell’interno del disco 
-
 Disco: identifica il disco a cui è associata l’immagine, il valore del dominio sarà lo stesso dell’identificatore del disco, quindi valore numerico. 
-
  
-
 **Relazioni**: 
+- Gestisce: relazione di cardinalità uno a molti tra Collezionista e Collezione, un collezionista può creare molte collezioni (ciascuna con un nome distinto) e una collezione può essere gestita da un solo collezionista. Viene posta una chiave esterna in Collezione (tabella referente) che si riferisce all’identificatore del Collezionista (tabella riferita). Collezione deve essere necessariamente collegata ad un collezionista. 
+- Condivisa: relazione di cardinalità molti a molti tra Collezionista e Collezione che identifica la condivisione di una collezione privata con dei collezionisti. un collezionista può condividere una collezione con molti collezionisti, inoltre molti collezionisti possono vedere una collezione. Viene creata una tabella di associazione di nome “condivisa” che associa la collezione con il collezionista, che si riferiscono rispettivamente all’identificatore della collezione e del collezionista. Un collezionista e una collezione possono non essere condivisi con nessun utente 
+- Raccolta: relazione di cardinalità molti a molti tra Collezione e Disco che permette l’associazione di più dischi a una collezione. A una collezione possono appartenere più dischi e un disco può appartenere a più collezioni. Viene creata una tabella di associazione di nome “raccolta” che associa la collezione con il disco, che si riferiscono rispettivamente all’identificatore della collezione e del disco. Collezione e Disco possono esistere come entità separate e non associate. 
+- Istanza: relazione di cardinalità uno a molti tra Doppione e Disco che permette l’associazione di più doppioni ad un disco. Un disco può avere più istanze doppione, ma un doppione è istanza di un solo disco. Viene posta una chiave esterna in Doppione (tabella referente) che si riferisce all’identificatore del Disco (tabella riferita). Doppione deve essere necessariamente collegata ad un disco. A un disco possono non essere associati doppioni.Ha senso inserire un doppione nel caso di aggiunta di un disco al database, tuttavia una volta eliminato il doppione il disco non verrà eliminato e in questo modo non verranno perse le sue associazioni con traccia e autore. 
+- Possiede: relazione di cardinalità uno a molti tra Doppione e Collezionista. Un collezionista può avere più doppioni ma un doppione è di un solo collezionista. Viene posta una chiave esterna in Doppione (tabella referente) che si riferisce all’identificatore del Collezionista (tabella riferita).  Doppione deve essere necessariamente collegata ad un collezionista 
+- Rappresenta: relazione di cardinalità uno a molti tra Immagine e Disco. Un disco può avere più immagini ma un’immagine è associata ad un solo disco. Viene posta una chiave esterna in Immagine (tabella referente) che si riferisce all’identificatore del Disco (tabella riferita).  Un'immagine deve essere necessariamente collegata ad un disco. 
+- Formato: relazione di cardinalità uno a molti tra Traccia e Disco. Un disco può essere associato a più tracce, ma ogni traccia può essere associato ad un solo disco. Viene posta una chiave esterna in Traccia(tabella referente) che si riferisce all’identificatore di Disco(tabella riferita). Una traccia non può esistere senza un disco associato. 
+-Scritta: relazione di cardinalità molti a molti tra Traccia e Autore che permette l’associazione di più autori ad una traccia con i loro ruoli(compositore ed esecutore). Una traccia può avere più autori e un autore può scrivere più tracce. Viene create una tabella per la relazione di nome “scritta” che associa le entità Traccia e Autore e permette di associare i diversi autori alle tracce univocamente tramite i loro rispettivi identificatori. Una traccia può esistere senza essere associata a un’autore, l’autore può non avere associati dischi.
 
-Gestisce: relazione di cardinalità uno a molti tra Collezionista e Collezione, un collezionista può creare molte collezioni (ciascuna con un nome distinto) e una collezione può essere gestita da un solo collezionista. Viene posta una chiave esterna in Collezione (tabella referente) che si riferisce all’identificatore del Collezionista (tabella riferita). Collezione deve essere necessariamente collegata ad un collezionista. 
-
-Condivisa: relazione di cardinalità molti a molti tra Collezionista e Collezione che identifica la condivisione di una collezione privata con dei collezionisti. un collezionista può condividere una collezione con molti collezionisti, inoltre molti collezionisti possono vedere una collezione. Viene creata una tabella di associazione di nome “condivisa” che associa la collezione con il collezionista, che si riferiscono rispettivamente all’identificatore della collezione e del collezionista. Un collezionista e una collezione possono non essere condivisi con nessun utente 
-
-Raccolta: relazione di cardinalità molti a molti tra Collezione e Disco che permette l’associazione di più dischi a una collezione. A una collezione possono appartenere più dischi e un disco può appartenere a più collezioni. Viene creata una tabella di associazione di nome “raccolta” che associa la collezione con il disco, che si riferiscono rispettivamente all’identificatore della collezione e del disco. Collezione e Disco possono esistere come entità separate e non associate. 
-
-Istanza: relazione di cardinalità uno a molti tra Doppione e Disco che permette l’associazione di più doppioni ad un disco. Un disco può avere più istanze doppione, ma un doppione è istanza di un solo disco. Viene posta una chiave esterna in Doppione (tabella referente) che si riferisce all’identificatore del Disco (tabella riferita). Doppione deve essere necessariamente collegata ad un disco. A un disco possono non essere associati doppioni.Ha senso inserire un doppione nel caso di aggiunta di un disco al database, tuttavia una volta eliminato il doppione il disco non verrà eliminato e in questo modo non verranno perse le sue associazioni con traccia e autore. 
-
-Possiede: relazione di cardinalità uno a molti tra Doppione e Collezionista. Un collezionista può avere più doppioni ma un doppione è di un solo collezionista. Viene posta una chiave esterna in Doppione (tabella referente) che si riferisce all’identificatore del Collezionista (tabella riferita).  Doppione deve essere necessariamente collegata ad un collezionista 
-
-Rappresenta: relazione di cardinalità uno a molti tra Immagine e Disco. Un disco può avere più immagini ma un’immagine è associata ad un solo disco. Viene posta una chiave esterna in Immagine (tabella referente) che si riferisce all’identificatore del Disco (tabella riferita).  Un'immagine deve essere necessariamente collegata ad un disco. 
-
-Formato: relazione di cardinalità uno a molti tra Traccia e Disco. Un disco può essere associato a più tracce, ma ogni traccia può essere associato ad un solo disco. Viene posta una chiave esterna in Traccia(tabella referente) che si riferisce all’identificatore di Disco(tabella riferita). Una traccia non può esistere senza un disco associato. 
-
-Scritta: relazione di cardinalità molti a molti tra Traccia e Autore che permette l’associazione di più autori ad una traccia con i loro ruoli(compositore ed esecutore). Una traccia può avere più autori e un autore può scrivere più tracce. Viene create una tabella per la relazione di nome “scritta” che associa le entità Traccia e Autore e permette di associare i diversi autori alle tracce univocamente tramite i loro rispettivi identificatori. Una traccia può esistere senza essere associata a un’autore, l’autore può non avere associati dischi. 
-
-Composto: relazione di cardinalità molti a molti tra Disco e Autore che permette l’associazione di più autori ad un disco con i loro ruoli(compositore ed esecutore). Un disco può avere più autori deve averne almeno uno per essere identificabile e un autore può comporre più dischi. Viene create una tabella per la relazione di nome “composto” che associa le entità Disco e Autore e permette di associare i diversi autori ai dischi univocamente tramite i loro rispettivi identificatori. Un disco non può esistere senza essere associato ad un autore, l’autore può non avere associati dischi. 
-
-  
+-Composto: relazione di cardinalità molti a molti tra Disco e Autore che permette l’associazione di più autori ad un disco con i loro ruoli(compositore ed esecutore). Un disco può avere più autori deve averne almeno uno per essere identificabile e un autore può comporre più dischi. Viene create una tabella per la relazione di nome “composto” che associa le entità Disco e Autore e permette di associare i diversi autori ai dischi univocamente tramite i loro rispettivi identificatori. Un disco non può esistere senza essere associato ad un autore, l’autore può non avere associati dischi. 
 
 ## Progettazione concettuale 
-
   
-
-  
-
 - Assumiamo che il genere e l’etichetta di un disco siano unici, che non possano esistere due dischi usciti nello stesso anno con lo stesso nome.  
 
 - Possono esistere due autori con lo stesso nome ma con IPI diverso (Interested Party Information, codice univoco assegnato agli autori musicali. 
