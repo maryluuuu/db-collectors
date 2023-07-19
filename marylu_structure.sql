@@ -3,16 +3,16 @@ create database progettolab;
 use progettolab;
 
 drop table if exists collezionista;
-drop table if exists collezione; -- X
-drop table if exists genere; -- X
-drop table if exists etichetta; -- X
-drop table if exists disco; -- X #DUBBIO controllare!!!
-drop table if exists traccia; -- X
-drop table if exists autore; -- X
-drop table if exists doppione; -- X
-drop table if exists immagine; -- X
+drop table if exists collezione;
+drop table if exists genere;
+drop table if exists etichetta;
+drop table if exists disco; 
+drop table if exists traccia;
+drop table if exists autore;
+drop table if exists doppione;
+drop table if exists immagine;
 drop table if exists condivisa;
-drop table if exists composto; -- X
+drop table if exists composto;
 drop table if exists scritta;
 drop table if exists raccolta;
 
