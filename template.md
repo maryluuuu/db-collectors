@@ -7,15 +7,10 @@
   
 
 | Matricola | Nome           | Cognome | Contributo al progetto | 
-
 |:------------:|:----------------:|:-------------:|:-----------------------------:| 
-
 |251926     |Maria Alberta|Caradio      |                                         | 
-
 |278438     |Federico         | Leopardi    | 	                           | 
-
-|278566     |Filippo             |Rastelli       |                        	             | 
-
+|278566     |Filippo             |Rastelli       |                        	             |
   
 
 **Data di consegna del progetto**: gg/mm/aaaa 
