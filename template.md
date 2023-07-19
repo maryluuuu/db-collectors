@@ -113,8 +113,6 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
   
 
 ### Traduzione del modello ER nel modello relazionale 
- 
-- Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
 
 > **LEGENDA** 
 > chiave primaria (PK = primary key) 
@@ -361,7 +359,7 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
 
   
 
-- Potete opzionalmente fornire anche uno script separato di popolamento (INSERT) del database su cui basare i test delle query descritte nella sezione successiva.
+-Script separato di popolamento (INSERT) del database.
 
 ```sql
 -- selezioniamo il database di default
@@ -407,29 +405,28 @@ insert into `etichetta` values
 
 -- Aggiunta di dischi a una collezione.
 insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_genere) values
--- disco 'The Wall' del 1979, barcode 0000000012, durata tot(Mother + Stop + Young Lust),
+-- disco 'The Wall' del 1979, barcode 0000000012,
 -- della Sony Music Entertainment, genere Progressive Rock,
--- della collezione 'Pink Floyd Music' di bob
 (1,'The Wall',1979,0000000012, 1, 1),
 
 
--- disco 'The Dark Side of the Moon' del 1973, non esiste barcode, durata tot(Eclipse + Us and Them),
+-- disco 'The Dark Side of the Moon' del 1973, non esiste barcode,
 -- della Warner-Elektra-Atlantic, genere Progressive Pop,
 (2, 'The Dark Side of the Moon', 1973, null, 1, 3),
 
 
--- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
+-- disco 'Abbey Road' del 1969, non esiste barcode,
 -- della Sony Music Entertainment, genere Art Rock,
 (3, 'Abbey Road', 1969, null, 2, 2),
 -- quando viene creato il disco non ci sono tracce associate quindi la durata di default è null.
 -- Durante l'inserimento delle tracce interviene il trigger
 
--- disco 'The Wall' del 1979, barcode 0000000013, durata tot(Mother + Stop + Young Lust),
+-- disco 'Sgt. Pepper's Lonely Hearts Club Band' del 1967, barcode 0000000015,
 -- della Sony Music Entertainment, genere Progressive Rock,
 (4, "Sgt. Pepper's Lonely Hearts Club Band ", 1967, 0000000015, 4, 4),
 
 
--- disco 'Abbey Road' del 1969, non esiste barctracciaode, durata tot(Come Together),
+-- disco 'Pet Sounds' del 1966 barcode 0000000018,
 -- della Sony Music Entertainment, genere Art Rock,
 (5, 'Pet Sounds', 1966, 0000000018, 4, 5);
 
@@ -491,15 +488,76 @@ insert into `composto`(ID_disco, ID_autore, ruolo) values
 
   
 
-- Nel caso abbiate individuato dei **vincoli ulteriori** che non sono esprimibili nel DDL, potrete usare questa sezione per discuterne l'implementazione effettiva, ad esempio riportando il codice di procedure o trigger, o dichiarando che dovranno essere implementati all'esterno del DBMS.
+- Abbiamo identificato due vincoli non direttamente esprimibili nel database: Il primo vincolo riguarda l'anno in cui può essere inserito un disco, poichè non ha senso aggiungere dischi che vengono scritti "nel futuro", di conseguenza, è necessario implementare un controllo per garantire che l'anno del disco sia inferiore o uguale all'anno corrente. Abbiamo scelto di creare una procedura che verifica che la data di pubblicazione sia compresa tra il 1900 e l'anno corrente che viene richiamata da un trigger che si attiva prima dell'inserimento e prima dell'aggiornamento di un disco nel database.
+Il secondo vincolo riguarda il calcolo della durata totale del disco, è stata implementata una procedura che somma la durata delle singole tracce associate ad un certo disco, che viene richiamata da un trigger che si attiva dopo l'inserimento o dopo l'aggiornamento delle tracce di un determinato disco.
 
+>Procedura per la verifica dell'anno
+```sql
+CREATE PROCEDURE verifica_anno(anno smallint unsigned)
+BEGIN
+    IF anno < 1900 OR anno > year(curdate()) THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Anno non valido';
+    END IF;
+END$$
+```
 
+>Trigger per il controllo dell'anno
+```sql
+CREATE TRIGGER controllo_anno1
+BEFORE INSERT ON disco
+FOR EACH ROW BEGIN
+CALL verifica_anno(NEW.anno_uscita);
+END$$
+```
 
+>Trigger aggiornamento anno disco
+```sql
+CREATE TRIGGER controllo_anno2
+BEFORE UPDATE ON disco
+FOR EACH ROW BEGIN
+IF NEW.anno_uscita != OLD.anno_uscita THEN
+CALL verifica_anno(NEW.anno_uscita);
+END IF;
+END$$
+```
 
+>Procedura per il calcolo della durata totale di un disco.
+```sql
+CREATE PROCEDURE calcola_durata_totale(id_disco INTEGER UNSIGNED) 
+BEGIN
+    UPDATE disco
+	SET disco.durata_totale = (
+		SELECT SEC_TO_TIME(SUM(DISTINCT TIME_TO_SEC(traccia.durata)))
+		FROM traccia
+		WHERE traccia.ID_disco = id_disco
+	)
+	WHERE disco.ID = id_disco;		
+END$$
+```
+
+>Trigger inserimento di tracce
+```sql
+CREATE TRIGGER inserisci_durata_totale
+AFTER INSERT ON traccia
+FOR EACH ROW BEGIN
+  CALL calcola_durata_totale(NEW.ID_disco);
+END$$
+>Procedura per il calcolo della durata totale di un disco.
+```
+
+>Trigger per l'aggiornamento di tracce
+```sql
+CREATE TRIGGER aggiorna_durata_totale
+AFTER UPDATE ON traccia
+FOR EACH ROW BEGIN
+CALL calcola_durata_totale(NEW.ID_disco);
+END$$
+```
 
 ### Implementazione funzionalità richieste 
--Assumiamo che nelle query in cui compare direttamente l’id_collezionista nei parametri di input delle procedure, questo venga generato automaticamente a partire dall’ID dell’utente che ha effettuato l’accesso ad una applicazione e che sta usando la funzionalità. 
--Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
+- Assumiamo che nelle query in cui compare direttamente l’id_collezionista nei parametri di input delle procedure, questo venga generato automaticamente a partire dall’ID dell’utente che ha effettuato l’accesso ad una applicazione e che sta usando la funzionalità. 
+- Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
 
 #### Funzionalità 1 
 - Viene inserita una nuova collezione con nome assegnato dall’utente e id collezione che rappresenta l’id del collezionista che vuole creare la collezione, il parametro id viene selezionato quindi in base all’utente che utilizza il database nell’applicazione e che richiama la procedura. 
