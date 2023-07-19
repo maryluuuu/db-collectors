@@ -8,7 +8,7 @@ DROP PROCEDURE IF EXISTS calcola_durata_totale;
 DROP PROCEDURE IF EXISTS verifica_anno;
 DROP PROCEDURE IF EXISTS query2disco;
 DROP PROCEDURE IF EXISTS eliminazione_da_collezione;
-DROP PROCEDURE IF EXISTS cancellazione_collezione;
+DROP PROCEDURE IF EXISTS query5;
 DROP PROCEDURE IF EXISTS elimina_disco;
 DROP PROCEDURE IF EXISTS lista_dischi;
 DROP PROCEDURE IF EXISTS modifica_stato_collezione;
@@ -122,21 +122,25 @@ END IF;
 END$$
 
 CREATE FUNCTION query2traccia( 
-nomed varchar(100), 
-annod smallint unsigned,
+nomed varchar(100),
+nomea varchar(50), 
+ipi integer unsigned,
 duratat smallint unsigned,
 nomet varchar(100), 
 isrc varchar(12)) RETURNS integer unsigned
 READS SQL DATA
 BEGIN
-  DECLARE id_traccia INT;
-  DECLARE id_disco INT;
+  DECLARE id_traccia INTEGER UNSIGNED;
+  DECLARE id_disco INTEGER UNSIGNED;
+  DECLARE id_autore INTEGER UNSIGNED;
   -- Verifica se il disco esiste
-  SELECT disco.ID INTO id_disco
-  FROM disco WHERE titolo_disco=nomed AND anno_uscita=annod;
+  SELECT dischiAutori.ID_disco INTO id_disco
+  FROM dischiAutori WHERE dischiAutori.IPI=ipi AND dischiAutori.titolo_disco=nomed;
   IF id_disco IS NULL THEN
   SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste';
   END IF;
+  SELECT ID INTO id_autore FROM autore
+	WHERE autore.IPI=ipi LIMIT 1;
   -- Verifica se la traccia esiste
   SELECT traccia.ID INTO id_traccia
   FROM traccia
@@ -146,6 +150,11 @@ BEGIN
 	INSERT INTO traccia(titolo,durata,ISRC,ID_disco) VALUES 
 	(nomet,SEC_TO_TIME(duratat),isrc,id_disco);
     SET id_traccia=last_insert_id();
+-- controllo se l'autore esiste
+IF id_autore IS NULL THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Autore non esistente';
+END IF;
+    INSERT INTO scritta(ID_traccia, ID_autore) VALUES (id_traccia, id_autore);
 END IF;
 RETURN id_traccia;
 END$$
@@ -171,19 +180,37 @@ END$$
 -- 4. Procedura per la rimozione di un disco da una collezione
 CREATE PROCEDURE eliminazione_da_collezione(
 nomed varchar(100),
-annod year, 
-id_collezione integer unsigned, 
+ipi integer unsigned,
+nomec varchar(80),
 id_collezionista integer unsigned)
 BEGIN
-DECLARE id1 integer unsigned;
-DECLARE idd integer unsigned;
-SELECT ID_collezionista INTO id1 FROM collezione WHERE ID=id_collezione;
-IF id1!=id_collezionista THEN
-	SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Non hai i permessi per modificare la collezione';
+DECLARE iddisco integer unsigned;
+DECLARE idcollezione integer unsigned;
+
+IF id_collezionista is null THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezionista non esistente';
 END IF;
-SELECT ID INTO idd FROM disco WHERE disco.titolo_disco=nomed AND anno_uscita=annod;
+SELECT collezione.ID INTO idcollezione FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista=id_collezionista;
+IF idcollezione is null THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione non esistente';
+END IF;
+SELECT ID_disco INTO iddisco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi;
 DELETE FROM raccolta 
-WHERE ID_disco = idd and ID_collezione = id_collezione;
+WHERE ID_disco = iddisco and ID_collezione = idcollezione;
+END$$
+
+
+-- 5. Rimozione di una collezione.
+CREATE PROCEDURE query5(id_collezionista integer unsigned, nomec varchar(80))
+BEGIN
+DECLARE idc integer unsigned;
+IF id_collezionista IS NULL OR nomec IS NULL THEN
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Collezione o collezionista non esistente';
+END IF;
+SELECT ID INTO idc FROM collezione WHERE collezione.nome=nomec AND collezione.ID_collezionista LIMIT 1;
+DELETE FROM collezione WHERE collezione.ID=idc;
+DELETE FROM raccolta WHERE raccolta.ID_collezione=idc;
+DELETE FROM condivisa WHERE condivisa.ID_collezione=idc;
 END$$
 
 -- 6. Lista di tutti i dischi in una collezione
@@ -350,23 +377,17 @@ JOIN composto ON composto.ID_disco = disco.ID
 JOIN autore ON autore.ID = composto.ID_autore;
 
 
--- CALL minuti_totali('Pink Floyd');
--- CALL verifica_visibilita(1,1);
--- dischi in collezioni pubbliche
--- select query2traccia('Pet Sounds',1966, 187, 'Here Today','ESaaaaaaaaa');
--- select * from traccia ;
-call query2disco(
+
+-- query2d ok
+-- query2t ok
+-- modifica_stato_collezione ok
+-- eliminazione_da_collezione ok
+-- query5 ok
+
+call eliminazione_da_collezione(
+'The Wall',
+0000004853,
 'I miei preferiti',
-'fallen', 
-2002, 
-null,
-1,
-'digitale',
-'nessuna',
-1,
-'evanescence',
-000003498
-);
-select * from autore;
-select * from doppione;
-select * from disco;
+1);
+select * from raccolta WHERE ID_collezione=4;
+select * from condivisa;

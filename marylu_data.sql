@@ -103,7 +103,7 @@ ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di ag
 
 -- Aggiunta di nuove condivisioni a una collezione.
 insert into `condivisa`(ID_collezionista, ID_collezione) values 
-(1,1), (1,3);
+(1,1), (1,2);
 
 -- Cancellazione collezione
 delete from collezione where ID = 3;
