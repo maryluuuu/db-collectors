@@ -59,13 +59,11 @@ BEGIN
 END$$
 
 -- 1. Inserimento di una nuova collezione.
-CREATE FUNCTION query1(nomec varchar(80), nicknamec varchar(80)) RETURNS integer unsigned
+CREATE FUNCTION query1(nomec varchar(80), id_collezionista integer unsigned) RETURNS integer unsigned
 READS SQL DATA
 BEGIN
-	DECLARE id_collezionista integer unsigned;
-	SELECT ID INTO id_collezionista FROM collezionista WHERE nickname=nicknamec;
-    IF id_collezionista is null then 
-     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste';
+    IF id_collezionista is null or nomec is null then 
+     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Valori inseriti errati';
 	END IF;
     INSERT INTO collezione(nome,ID_collezionista) VALUES (nomec, id_collezionista);
 	RETURN last_insert_id();
@@ -76,7 +74,7 @@ END$$
 CREATE PROCEDURE query2disco(
 nomecollezione varchar(80),
 nomed VARCHAR(100), 
-annod year, 
+annod year,
 barcoded bigint(13),
 id_collezionista integer unsigned,
 formatod varchar(20),
@@ -92,10 +90,10 @@ BEGIN
   DECLARE id_doppione INTEGER UNSIGNED;
   -- Verifica se la collezione esiste
   SELECT collezione.ID INTO id_collezione FROM collezione
-  WHERE nome = nomecollezione AND collezione.ID_collezionista=id_collezionista;
+  WHERE collezione.nome = nomecollezione AND collezione.ID_collezionista=id_collezionista LIMIT 1;
   -- Verifica se il disco esiste
-  SELECT ID_disco INTO id_disco FROM dischiAutori
-  WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi;
+  SELECT d.ID_disco INTO id_disco FROM dischiAutori d
+  WHERE d.titolo_disco=nomed AND d.IPI=ipi LIMIT 1 ;
   -- Se la collezione non esiste, esci dalla procedura
   IF id_collezione IS NULL THEN
     SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste';
@@ -109,20 +107,21 @@ INSERT INTO autore(nome,IPI) VALUES (nomea,ipi);
 SET id_autore=last_insert_id();
 INSERT INTO composto(ID_disco,ID_autore) VALUES (id_disco,id_autore);
 END IF;
-  -- Verifica se l'associazione esiste già nella tabella collezioni_disco
-  -- Inserisci l'associazione nella tabella raccolta
+  -- Verifica se l'associazione esiste già nella tabella raccolta
+  IF not EXISTS( SELECT 1 FROM raccolta r WHERE r.ID_disco=id_disco AND r.ID_collezione=id_collezione) THEN
+   -- Inserisci l'associazione nella tabella raccolta
   INSERT INTO raccolta (ID_collezione, ID_disco)
   VALUES (id_collezione, id_disco);
-  
+  END IF;
   SELECT ID INTO id_doppione FROM doppione WHERE doppione.formato=formatod AND doppione.condizione=condizioned 
   AND doppione.ID_disco=id_disco;
-  IF id_doppione is not null THEN
+  IF id_doppione is null THEN
+  INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista)
+  VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista);
+  ELSE
   UPDATE doppione
   SET doppione.quantita=doppione.quantita+quantitad;
   END IF;
-  
-  INSERT INTO doppione(quantita, formato, condizione, ID_disco, ID_collezionista)
-  VALUES (quantitad, formatod, condizioned, id_disco, id_collezionista);
 END$$
 
 CREATE FUNCTION query2traccia( 
@@ -439,5 +438,7 @@ JOIN autore ON autore.ID = composto.ID_autore;
 -- minutiPerAutore ok;
 -- braniPerAutore ok;
 -- statistiche ok;
-call query13 (0000000056,'Abbey Road', 'The Beatles');
+
+SELECT * FROM doppione;
+  
 
