@@ -116,10 +116,11 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
  
 - Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
 
-LEGENDA 
-chiave primaria (PK = primary key) 
-chiave esterna (FK = foreign key) 
+> **LEGENDA** 
+> chiave primaria (PK = primary key) 
+> chiave esterna (FK = foreign key) 
 
+```sql
 COLLEZIONISTA (ID, nickname, email, passkey) PK:ID 
 COLLEZIONE (ID, nome, flag, ID_collezionista) PK: ID - FK:ID_collezionista 
 GENERE (ID, nome) PK:ID 
@@ -134,7 +135,7 @@ CONDIVISA (ID_collezione, ID_collezionista) PK: ID_collezione, ID_collezionista
 COMPOSTO (ID­_disco, ID_autore, ruolo) PK: ID_disco, ID_autore 
 SCRITTA (ID_autore, ID_traccia, ruolo) PK:ID_autore, ID_traccia 
 RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco 
-
+```
  
 
 ## Progettazione fisica 
