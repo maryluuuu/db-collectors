@@ -421,7 +421,6 @@ insert into `disco`(ID, titolo_disco, anno_uscita, barcode, ID_etichetta, ID_gen
 -- disco 'Abbey Road' del 1969, non esiste barcode, durata tot(Come Together),
 -- della Sony Music Entertainment, genere Art Rock,
 (3, 'Abbey Road', 1969, null, 2, 2),
--- select sum(durata) from traccia where id_disco=3 ho tolto questa riga di codice perchè l'entità disco viene creata prima di traccia
 -- quando viene creato il disco non ci sono tracce associate quindi la durata di default è null.
 -- Durante l'inserimento delle tracce interviene il trigger
 
@@ -459,11 +458,11 @@ insert into `autore` (ID, nome, IPI) values
 
 -- Inserimento dei doppioni di dischi dei collezionisti
 insert into `doppione` values
-(1, 4, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
-(1, 2, 'CD', 'buona', 1, 1),				-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
-(2, 5, 'vinile', 'pessima', 2, 1), 			-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
-(3, 1, 'musicassetta', 'perfetta', 3, 3),	-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
-(4, 3, 'vinile', 'brutta', 3, 3) 			-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
+(1, 4, 'CD', 'buona', 1, 1),					-- collezionista 1 (alice) ha 4 CD in buona condizione di 'The Wall'
+(1, 2, 'CD', 'buona', 1, 1),					-- collezionista 1 (alice) ha 2 CD in buona condizione di 'The Wall'
+(2, 5, 'vinile', 'pessima', 2, 1), 				-- collezionista 1 (alice) ha 5 vinili in pessima condizione di 'The Dark Side of the Moon'
+(3, 1, 'musicassetta', 'perfetta', 3, 3),			-- collezionista 3 (tyler) ha 1 musicassetta in perfetta condizione di 'Abbey Road'
+(4, 3, 'vinile', 'brutta', 3, 3) 				-- collezionista 3 (tyler) ha 3 vinili in brutta condizione di 'Abbey Road'
 ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di aggiornamento quantità nel caso di disco già esistente
 
 -- Aggiunta di nuove condivisioni a una collezione.
