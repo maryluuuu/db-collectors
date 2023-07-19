@@ -106,7 +106,6 @@ L'attributo "durata_totale" dell'entità "disco" è un attributo calcolato otten
 
 - Riportate qui il modello **ER ristrutturato** ed eventualmente ottimizzato.
   
-- La relazione “Condivisa” lega le entità COLLEZIONE e COLLEZIONISTA 
 
 ![New SCHEMA E-R Progetto Lab Base di Dati drawio](https://github.com/maryluuuu/progetto-basi-di-dati/assets/103209787/2adb6b7a-2082-4e3d-9f57-d0f13bc9ac80)
 
