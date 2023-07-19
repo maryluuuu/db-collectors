@@ -366,7 +366,7 @@ JOIN composto ON disco.ID = composto.ID_disco
 JOIN autore ON composto.ID_autore = autore.ID
 WHERE (disco.barcode = numbarcode
        OR disco.titolo_disco LIKE CONCAT('%',titoloD,'%')
-       OR autore.nome = 'nome_autore')
+       OR autore.nome LIKE CONCAT('%',nome_autore,'%')
 ORDER BY punteggio DESC
 LIMIT 10;
 END$$

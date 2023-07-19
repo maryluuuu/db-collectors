@@ -102,6 +102,7 @@ Disco: identifica il disco a cui è associata l’immagine, il valore del domini
 -  L’attributo di disco etichetta è stato definito come entità a parte “Genere” con relazione di cardinalità uno a molti “classificato” tra Genere e Disco. Un genere può essere associato a più dischi, ma ogni disco può essere associato ad un solo genere. Assumiamo quindi che un disco è associato da un solo genere, se ci sono altri generi associati al disco verranno omessi. Viene posta una chiave esterna in Disco(tabella referente) che si riferisce all’identificatore di Genere(tabella riferita). Un genere può esistere senza avere dischi associati e il disco può esistere senza genere. Le informazioni sulle varie etichette non vengono perse con il cancellamento di dischi. Non possono esistere due generi con lo stesso nome 
 
 ### Traduzione del modello ER nel modello relazionale 
+<<<<<<< HEAD
  
 - Nel modello evidenziate le chiavi primarie e le chiavi esterne. 
 
@@ -109,6 +110,14 @@ LEGENDA
 chiave primaria (PK = primary key) 
 chiave esterna (FK = foreign key) 
 
+=======
+
+> **LEGENDA** 
+> chiave primaria (PK = primary key) 
+> chiave esterna (FK = foreign key) 
+
+```sql
+>>>>>>> 07598fdebd4467e4722d9878218644262d409d0d
 COLLEZIONISTA (ID, nickname, email, passkey) PK:ID 
 COLLEZIONE (ID, nome, flag, ID_collezionista) PK: ID - FK:ID_collezionista 
 GENERE (ID, nome) PK:ID 
