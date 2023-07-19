@@ -20,6 +20,7 @@ DROP PROCEDURE IF EXISTS statistiche1;
 DROP PROCEDURE IF EXISTS statistiche2;
 DROP PROCEDURE IF EXISTS minuti_totali;
 DROP PROCEDURE IF EXISTS verifica_visibilita;
+DROP PROCEDURE IF EXISTS query13;
 
 -- Elimina i trigger esistenti
 DROP TRIGGER IF EXISTS controllo_anno1;
@@ -30,6 +31,9 @@ DROP TRIGGER IF EXISTS aggiorna_durata_totale;
 -- Elimina le viste esistenti
 DROP VIEW IF EXISTS dischiCPubbliche;
 DROP VIEW IF EXISTS dischiAutori;
+
+-- Elimina le tabelle temporanee
+DROP TEMPORARY TABLE IF EXISTS temp_results;
 
 DELIMITER $$
 
@@ -214,35 +218,39 @@ DELETE FROM condivisa WHERE condivisa.ID_collezione=idc;
 END$$
 
 -- 6. Lista di tutti i dischi in una collezione
-CREATE PROCEDURE lista_dischi (nomec varchar(60), nomecollezionista integer unsigned)
+CREATE PROCEDURE lista_dischi (nomec varchar(60), id_collezionista integer unsigned)
 BEGIN
 DECLARE id_collezione integer unsigned;
-DECLARE id_c integer ;
-SELECT ID INTO id_c FROM collezionista WHERE collezionista.nickname=nomec;
-SELECT ID INTO id_collezione FROM collezione WHERE collezione.nome=nomec AND ID_collezionista=id_c;
-IF id_collezione is null OR id_c is null THEN
- SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione o il collezionista non esistono';
+IF id_collezionista is null THEN
+ SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste';
 END IF;
-SELECT disco.titolo FROM disco 
+SELECT ID INTO id_collezione FROM collezione WHERE collezione.nome=nomec AND ID_collezionista=id_collezionista LIMIT 1;
+IF id_collezione is null THEN
+ SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste';
+END IF;
+SELECT disco.titolo_disco FROM disco 
 JOIN raccolta ON disco.ID=raccolta.ID_disco
 WHERE raccolta.ID_collezione=id_collezione;
 END$$
 
 -- 7. Tracklist di un disco
-CREATE PROCEDURE tracklist (nomed varchar(100), annod year)
+CREATE PROCEDURE tracklist (nomed varchar(100), ipi integer unsigned)
 BEGIN
-DECLARE id_d integer unsigned;
-SELECT ID INTO id_d FROM disco WHERE titolo_disco=nomed AND anno_uscita=annod;
-IF id_D is null THEN
+DECLARE id_disco integer unsigned;
+SELECT dischiAutori.ID_disco INTO id_disco FROM dischiAutori WHERE dischiAutori.titolo_disco=nomed AND dischiAutori.IPI=ipi LIMIT 1;
+IF id_disco is null THEN
  SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il disco non esiste';
 END IF;
 SELECT DISTINCT titolo, traccia.durata, titolo_disco 
 FROM disco JOIN traccia ON disco.ID=traccia.ID_disco
-WHERE traccia.ID_disco = id_d;
+WHERE traccia.ID_disco = id_disco;
 END$$ 
 
 -- 8. Ricerca di dischi in base a nomi di...
-CREATE PROCEDURE trova_disco (id_collezionista integer unsigned, nome_autore varchar(50), titolo_disco varchar(50))
+CREATE PROCEDURE trova_disco (
+id_collezionista integer unsigned, 
+nome_autore varchar(50), 
+titolo_disco varchar(50))
 BEGIN
 -- Ricerca in base ai nomi di autori/compositori/interpreti e/o titoli nelle collezioni private di un collezionista
 SELECT dischiAutori.titolo_disco
@@ -271,13 +279,29 @@ WHERE (dischiAutori.nome LIKE (CONCAT('%',nome_autore,'%')) OR dischiAutori.tito
   END$$
   
 -- 9. Verifica della visibilità di una collezione da parte di un collezionista.
-CREATE PROCEDURE verifica_visibilita (id_collezionista integer unsigned, id_collezione integer unsigned)
+CREATE PROCEDURE verifica_visibilita (
+id_collezionista integer unsigned, 
+nomecollezione varchar(80), 
+nickname1 varchar(60))
 BEGIN
+DECLARE id_collezione integer unsigned;
+DECLARE id_collezionista1 integer unsigned;
+IF id_collezionista is null or nickname1 is null or nomecollezione is null then
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Inseriti valori errati';
+END IF;
+SELECT c1.ID INTO id_collezionista1 FROM collezionista c1 WHERE c1.nickname=nickname1 LIMIT 1;
+IF id_collezionista1 is null then
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Il collezionista non esiste';
+END IF;
+SELECT c.ID INTO id_collezione FROM collezione c WHERE c.nome=nomecollezione AND c.ID_collezionista=id_collezionista1 LIMIT 1;
+IF id_collezione is null then
+SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'La collezione non esiste';
+END IF;
 SELECT disco.titolo_disco
 FROM collezione c 
-JOIN condivisa ON c.ID = condivisa.ID_collezione
 JOIN raccolta ON raccolta.ID_collezione = c.ID
 JOIN disco ON disco.ID=raccolta.ID_disco
+LEFT JOIN condivisa ON raccolta.ID_collezione = condivisa.ID_collezione
 WHERE (c.ID=id_collezione) AND (c.ID_collezionista = id_collezionista OR condivisa.ID_collezionista = id_collezionista OR c.flag = 1);
 END$$
 
@@ -322,6 +346,32 @@ BEGIN
 SELECT nome, COUNT(*) as numero_dischi FROM genere JOIN disco ON genere.ID = disco.ID_genere
 GROUP BY ID_genere;
 END$$
+
+-- 13 OPZIONALE
+CREATE PROCEDURE query13 (numbarcode bigint(13), titolod varchar(100), nomea varchar(50))
+BEGIN
+ CREATE TEMPORARY TABLE temp_results (
+        titolo_disco VARCHAR(100),
+        nome_autore VARCHAR(50),
+        punteggio INT
+        );
+SELECT disco.titolo_disco, autore.nome,
+       (CASE
+           WHEN disco.barcode = numbarcode THEN 3
+           WHEN disco.titolo_disco LIKE CONCAT('%',titoloD,'%') THEN 2
+           WHEN autore.nome = nomea THEN 1
+           ELSE 0
+       END) AS punteggio
+FROM disco
+JOIN composto ON disco.ID = composto.ID_disco
+JOIN autore ON composto.ID_autore = autore.ID
+WHERE (disco.barcode = numbarcode
+       OR disco.titolo_disco LIKE CONCAT('%',titoloD,'%')
+       OR autore.nome = 'nome_autore')
+ORDER BY punteggio DESC
+LIMIT 10;
+END$$
+
 
 
 -- TRIGGER
@@ -377,17 +427,17 @@ JOIN composto ON composto.ID_disco = disco.ID
 JOIN autore ON autore.ID = composto.ID_autore;
 
 
-
--- query2d ok
--- query2t ok
+-- TESTED:
+-- query2d ok !aggiungere ruolo!
+-- query2t ok !aggiungere ruolo!
 -- modifica_stato_collezione ok
 -- eliminazione_da_collezione ok
 -- query5 ok
+-- lista_dischi ok
+-- tracklist ok
+-- verifica_visibilita ok;
+-- minutiPerAutore ok;
+-- braniPerAutore ok;
+-- statistiche ok;
+call query13 (0000000056,'Abbey Road', 'The Beatles');
 
-call eliminazione_da_collezione(
-'The Wall',
-0000004853,
-'I miei preferiti',
-1);
-select * from raccolta WHERE ID_collezione=4;
-select * from condivisa;

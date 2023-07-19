@@ -105,12 +105,6 @@ ON DUPLICATE KEY UPDATE quantita = quantita + VALUES(quantita); -- vincolo di ag
 insert into `condivisa`(ID_collezionista, ID_collezione) values 
 (1,1), (1,2);
 
--- Cancellazione collezione
-delete from collezione where ID = 3;
-
--- Cancellazione genere
-delete from genere where ID = 1; 
-
 -- Aggiunta di dischi a una collezione
 insert into `raccolta`(ID_collezione, ID_disco) values
 (2,4), (2,3),(2,5), (1,3), (1,4), (4,1), (4,3), (4,2);
