@@ -5,11 +5,11 @@
 **Gruppo di lavoro**: 
 | Matricola | Nome           | Cognome | Contributo al progetto | 
 |:------------:|:----------------:|:-------------:|:-----------------------------:| 
-|251926     |Maria Alberta|Caradio      |                                         | 
-|278438     |Federico         | Leopardi    | 	                           | 
-|278566     |Filippo             |Rastelli       |                        	             |
+|251926     |Maria Alberta|Caradio      | Struttura SQL, Schema E-R Base, Query (2, 7, 8, 9, 13)                          | 
+|278438     |Federico         | Leopardi    | Documentazione, Inserimento dati SQL e Query (1, 5, 6, 12)                   | 
+|278566     |Filippo             |Rastelli       | SCHEMA E-R Ristrutturato, Modello Relazionale e Query ( 3, 4, 10, 11)               	             |
   
-**Data di consegna del progetto**: gg/mm/aaaa 
+**Data di consegna del progetto**: 19/07/2023 
   
 ## Analisi dei requisiti 
 L'obiettivo del progetto "Collectors" è quello di sviluppare un database per la gestione delle collezioni di dischi dei collezionisti. Il database consente la registrazione di dati dei collezionisti, le loro collezioni di dischi, i dettagli e le tracce associate a ciascun disco. Il sistema offre una serie di funzionalità per l'inserimento, la modifica e la visualizzazione dei dati, nonché per la ricerca e l’analisi delle informazioni memorizzate.  
@@ -377,7 +377,7 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
 
   
 
--Script separato di popolamento (INSERT) del database.
+- Script separato di popolamento (INSERT) del database.
 
 ```sql
 -- selezioniamo il database di default
@@ -575,7 +575,7 @@ END$$
 
 ### Implementazione funzionalità richieste 
 - Assumiamo che nelle query in cui compare direttamente l’id_collezionista nei parametri di input delle procedure, questo venga generato automaticamente a partire dall’ID dell’utente che ha effettuato l’accesso ad una applicazione e che sta usando la funzionalità. 
-- Le procedure create per il corretto funzionamento del database e dei suoi vincoli sono elencate dopo la dichiarazione del codice relative alle funzionalità richieste dalla specifica del progetto. 
+
 
 #### Funzionalità 1 
 - Viene inserita una nuova collezione con nome assegnato dall’utente e id collezione che rappresenta l’id del collezionista che vuole creare la collezione, il parametro id viene selezionato quindi in base all’utente che utilizza il database nell’applicazione e che richiama la procedura. 
