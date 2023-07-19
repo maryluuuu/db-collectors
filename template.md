@@ -368,7 +368,6 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
 use progettolab;
 
 -- svuotiamo le tabelle
--- delete from `ruolo`;
 delete from `collezionista`;
 delete from `collezione`;
 delete from `genere`;
