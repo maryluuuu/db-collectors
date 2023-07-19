@@ -1042,5 +1042,23 @@ WHERE (disco.barcode = numbarcode
 ORDER BY punteggio DESC
 LIMIT 10;
 END$$
+```
 
-``` 
+> Vista per la visualizzazione delle collezioni pubbliche nel database
+```sql
+CREATE VIEW dischiCPubbliche AS
+SELECT DISTINCT disco.ID ,titolo_disco
+FROM disco 
+JOIN raccolta ON raccolta.ID_disco = disco.ID
+JOIN collezione ON collezione.ID = raccolta.ID_collezione
+WHERE collezione.flag=1;
+```
+
+> Vista per la visualizzazione delle informazioni di disco e autore.
+```sql
+CREATE VIEW dischiAutori AS
+SELECT disco.ID as ID_disco, titolo_disco, composto.ID_autore, autore.nome, autore.IPI
+FROM disco
+JOIN composto ON composto.ID_disco = disco.ID
+JOIN autore ON autore.ID = composto.ID_autore;
+```
