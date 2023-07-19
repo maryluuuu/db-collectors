@@ -359,10 +359,6 @@ RACCOLTA (ID_collezione, ID_disco) PK:ID_collezione, ID_disco
   );
   ```
 
-Nella tabella “collezionista” sono presenti valori not null nickname, email e passkey. Il nickname varia da un collezionista ad un altro unico, infatti, non esisterà un collezionista che avrà un ID diverso con lo stesso nickname. 
-
-Nella tabella “collezione” sono presenti i valori not null nome, flag e la chiave esterna ID_collezionista che di conseguenza non è null, se fosse stato null la collezione non sarebbe associato ad alcun collezionista. ID_collezionista fa riferimento a ID 
-
   
 
 - Potete opzionalmente fornire anche uno script separato di popolamento (INSERT) del database su cui basare i test delle query descritte nella sezione successiva. 
